@@ -8,6 +8,7 @@ import { emptyData } from '../../state/storage.js';
 import { CategoryManager } from './CategoryManager.jsx';
 import { DataExportImport } from './DataExportImport.jsx';
 import { RecurringManager } from './RecurringManager.jsx';
+import { InstallPrompt } from '../../pwa/InstallPrompt.jsx';
 import './Settings.css';
 
 const THEMES = [
@@ -61,6 +62,13 @@ export function SettingsPage() {
             </button>
           ))}
         </div>
+      </section>
+
+      <section className="card section" aria-labelledby="install-title">
+        <h2 id="install-title" className="section__title">
+          Aplikasi
+        </h2>
+        <InstallPrompt variant="row" />
       </section>
 
       <CategoryManager />

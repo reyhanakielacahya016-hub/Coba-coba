@@ -1,0 +1,59 @@
+.install {
+  position: relative;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--space-3) var(--space-4);
+}
+
+.install--card {
+  padding: var(--space-4) var(--space-5);
+  border-radius: var(--r-md);
+  background:
+    radial-gradient(120% 140% at 0% 0%, var(--accent-soft), transparent 60%),
+    var(--surface);
+  box-shadow: var(--shadow-1);
+  animation: fade-up 320ms var(--ease) both;
+}
+
+.install--card .install__text {
+  padding-right: var(--space-6);
+}
+
+.install__icon {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 14px;
+  background: var(--accent);
+  color: var(--accent-ink);
+  flex: none;
+}
+
+.install__text {
+  flex: 1;
+  min-width: 180px;
+}
+
+.install__title {
+  font-weight: 700;
+}
+
+.install__sub {
+  font-size: 0.85rem;
+  color: var(--ink-2);
+}
+
+.install__close {
+  position: absolute;
+  top: var(--space-1);
+  right: var(--space-1);
+  width: 36px;
+  height: 36px;
+}
+
+.install__done {
+  font-size: 0.9rem;
+  color: var(--ink-2);
+}

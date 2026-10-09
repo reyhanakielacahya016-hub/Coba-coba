@@ -13,6 +13,7 @@ import { categoryMap, monthInsight, monthTotals, txInMonth } from '../../state/s
 import { TransactionItem } from '../transactions/TransactionItem.jsx';
 import { BudgetPreview } from './BudgetPreview.jsx';
 import { StreakCard } from './StreakCard.jsx';
+import { InstallPrompt } from '../../pwa/InstallPrompt.jsx';
 import './Dashboard.css';
 
 function greeting() {
@@ -87,6 +88,7 @@ export function DashboardPage() {
         </div>
 
         <div className="dash__col">
+          <InstallPrompt />
           <StreakCard />
           <BudgetPreview month={month} />
         </div>

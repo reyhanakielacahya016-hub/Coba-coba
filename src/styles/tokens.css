@@ -40,6 +40,17 @@
   --shadow-2: 0 12px 40px rgb(31 36 33 / 0.16);
   --shadow-fab: 0 8px 24px rgb(14 124 90 / 0.35);
 
+  /* skala jarak 4/8px — pakai ini, jangan angka acak */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-7: 32px;
+  --space-8: 40px;
+  --space-9: 48px;
+
   --r-xs: 8px;
   --r-sm: 14px;
   --r-md: 20px;
