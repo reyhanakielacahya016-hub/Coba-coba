@@ -34,6 +34,19 @@ Perintah lain:
 | `npm run preview` | Menjalankan hasil `build` secara lokal untuk dicek |
 | `npm test` | Menjalankan unit test (Vitest) untuk logika perhitungan |
 
+### Menerbitkan online (GitHub Pages)
+
+Repo ini sudah berisi workflow `.github/workflows/deploy.yml`. Setiap ada perubahan di branch `main`,
+aplikasi otomatis di-build, dites, lalu diterbitkan ke GitHub Pages. Pengaturan awal di GitHub (cukup sekali):
+
+1. **Settings → General → Default branch**: ubah menjadi `main`.
+2. **Settings → Pages → Build and deployment → Source**: pilih **GitHub Actions**.
+3. Buka tab **Actions**, pilih workflow *Terbitkan ke GitHub Pages*, lalu klik **Run workflow**.
+
+Setelah selesai (sekitar 1–2 menit), aplikasi bisa dibuka di
+`https://<nama-akun>.github.io/<nama-repo>/`. Di HP, buka alamat itu lalu pilih
+**"Tambahkan ke layar utama"** dari menu browser agar terasa seperti aplikasi biasa.
+
 Saat pertama dibuka akan muncul **onboarding 3 layar**. Di layar terakhir pilih
 **"Lihat dengan data contoh"** untuk langsung melihat aplikasi yang sudah terisi dua bulan catatan anak kos.
 Data contoh bisa dihapus kapan saja lewat *Pengaturan → Hapus semua data*.
