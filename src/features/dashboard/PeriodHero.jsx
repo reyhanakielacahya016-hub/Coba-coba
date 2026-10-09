@@ -1,4 +1,4 @@
-import { AlertTriangle, ArrowDownLeft, CalendarClock, CalendarPlus, CheckCircle2, CircleDashed, Wallet } from 'lucide-react';
+import { AlertTriangle, ArrowDownLeft, CalendarClock, CalendarPlus, CheckCircle2, CircleDashed, Repeat2, Wallet } from 'lucide-react';
 import { Button } from '../../components/ui/Button.jsx';
 import { AnimatedRupiah } from '../../components/ui/AnimatedNumber.jsx';
 import { formatRupiah } from '../../lib/format.js';
@@ -17,7 +17,8 @@ export const LEVEL = {
 export function PeriodHero({ range, totals, pace, insight, onAddIncome, onNewPeriod, hasPeriods }) {
   const negative = totals.remaining < 0;
   const word = range.kind === 'period' ? 'periode' : 'bulan';
-  const used = totals.income ? Math.min(1, (totals.expense + totals.saved) / totals.income) : 0;
+  const funds = totals.income + (totals.carryIn || 0);
+  const used = funds ? Math.min(1, (totals.expense + totals.saved) / funds) : 0;
   const lvl = pace ? LEVEL[pace.level] : null;
 
   return (
@@ -36,8 +37,13 @@ export function PeriodHero({ range, totals, pace, insight, onAddIncome, onNewPer
       </div>
 
       <AnimatedRupiah value={totals.remaining} className="hero__amount" />
+      {totals.carryIn > 0 && (
+        <p className="hero__carry">
+          <Repeat2 size={14} aria-hidden="true" /> Termasuk sisa periode lalu <strong className="num">+{formatRupiah(totals.carryIn)}</strong>
+        </p>
+      )}
 
-      {totals.income === 0 && totals.expense === 0 && range.status !== 'upcoming' ? (
+      {funds === 0 && totals.expense === 0 && range.status !== 'upcoming' ? (
         <div className="hero__start">
           <p className="hero__start-title">Mulai dari sini 👇</p>
           <ol className="hero__steps">
@@ -105,7 +111,7 @@ export function PeriodHero({ range, totals, pace, insight, onAddIncome, onNewPer
         </div>
       )}
 
-      {totals.income > 0 && (
+      {funds > 0 && (
         <div className="hero__pace" aria-label="Perbandingan waktu dan uang">
           {pace && (
             <div className="pace-row">

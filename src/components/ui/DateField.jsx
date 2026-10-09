@@ -28,6 +28,9 @@ export function DateField({
   clearable = false,
   compact = false,
   minMessage,
+  // true: tanggal yang salah tetap dikirim ke form ('' bila tidak ada di kalender),
+  // supaya form ikut menolak saat disimpan
+  passInvalid = false,
 }) {
   const id = useId();
   const [parts, setParts] = useState(() => split(value));
@@ -43,8 +46,10 @@ export function DateField({
 
   // sinkron dengan nilai dari luar (mis. dipilih lewat kalender atau chip "Kemarin")
   useEffect(() => {
-    if (!editing.current) setParts(split(value));
-    setLocalError('');
+    if (!editing.current) {
+      setParts(split(value));
+      setLocalError('');
+    }
   }, [value]);
 
   const check = (iso) => {
@@ -67,11 +72,12 @@ export function DateField({
     const iso = makeISO(y, m, d);
     if (!iso) {
       setLocalError('Tanggal itu tidak ada di kalender. Cek lagi ya.');
+      if (passInvalid) onChange('');
       return;
     }
     const msg = check(iso);
     setLocalError(msg);
-    if (!msg) onChange(iso);
+    if (!msg || passInvalid) onChange(iso);
   };
 
   const onPart = (key, max, nextRef) => (e) => {
