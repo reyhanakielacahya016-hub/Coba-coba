@@ -1,0 +1,48 @@
+.progress {
+  --track: var(--surface-2);
+  --fill: var(--accent);
+  position: relative;
+  height: 10px;
+  border-radius: var(--r-pill);
+  background: var(--track);
+  overflow: hidden;
+}
+
+.progress--sm {
+  height: 6px;
+}
+
+.progress--lg {
+  height: 14px;
+}
+
+.progress__fill {
+  height: 100%;
+  width: var(--pct);
+  border-radius: inherit;
+  background: var(--fill);
+  transition:
+    width 700ms var(--ease),
+    background-color 400ms var(--ease);
+  animation: progress-grow 900ms var(--ease);
+}
+
+.progress--warn {
+  --fill: var(--warn);
+  --track: var(--warn-soft);
+}
+
+.progress--over {
+  --fill: var(--over);
+  --track: var(--over-soft);
+}
+
+.progress--done .progress__fill {
+  background: linear-gradient(90deg, var(--accent), var(--accent-strong));
+}
+
+@keyframes progress-grow {
+  from {
+    width: 0;
+  }
+}

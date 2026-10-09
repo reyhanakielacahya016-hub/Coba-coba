@@ -1,0 +1,59 @@
+.empty {
+  display: grid;
+  justify-items: center;
+  text-align: center;
+  gap: 8px;
+  padding: 36px 20px;
+}
+
+.empty--compact {
+  padding: 20px 12px;
+}
+
+.empty__art {
+  display: grid;
+  place-items: center;
+  width: 76px;
+  height: 76px;
+  border-radius: 28px;
+  background: var(--accent-soft);
+  font-size: 2.1rem;
+  margin-bottom: 6px;
+  transform: rotate(-6deg);
+  animation: empty-bob 4s ease-in-out infinite;
+}
+
+.empty--compact .empty__art {
+  width: 56px;
+  height: 56px;
+  border-radius: 20px;
+  font-size: 1.6rem;
+}
+
+.empty__art span {
+  transform: rotate(6deg);
+}
+
+.empty__title {
+  font-size: 1.1rem;
+}
+
+.empty__text {
+  color: var(--ink-2);
+  max-width: 34ch;
+  font-size: 0.93rem;
+}
+
+.empty__action {
+  margin-top: 8px;
+}
+
+@keyframes empty-bob {
+  0%,
+  100% {
+    transform: rotate(-6deg) translateY(0);
+  }
+  50% {
+    transform: rotate(-3deg) translateY(-4px);
+  }
+}

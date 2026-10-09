@@ -1,0 +1,105 @@
+.btn {
+  --btn-bg: var(--accent);
+  --btn-ink: var(--accent-ink);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border: 0;
+  border-radius: var(--r-pill);
+  background: var(--btn-bg);
+  color: var(--btn-ink);
+  font-weight: 700;
+  letter-spacing: -0.005em;
+  white-space: nowrap;
+  transition:
+    transform 160ms var(--ease),
+    background-color var(--dur) var(--ease),
+    box-shadow var(--dur) var(--ease),
+    opacity var(--dur) var(--ease);
+  user-select: none;
+}
+
+.btn:hover:not(:disabled) {
+  filter: brightness(1.04);
+}
+
+.btn:active:not(:disabled) {
+  transform: scale(0.97);
+}
+
+.btn:disabled {
+  opacity: 0.45;
+}
+
+.btn--sm {
+  min-height: 36px;
+  padding: 6px 14px;
+  font-size: 0.875rem;
+}
+
+.btn--md {
+  min-height: 48px;
+  padding: 10px 20px;
+  font-size: 0.975rem;
+}
+
+.btn--lg {
+  min-height: 56px;
+  padding: 14px 24px;
+  font-size: 1.05rem;
+}
+
+.btn--block {
+  width: 100%;
+}
+
+.btn--primary {
+  box-shadow: 0 4px 14px rgb(14 124 90 / 0.22);
+}
+
+.btn--soft {
+  --btn-bg: var(--accent-soft);
+  --btn-ink: var(--accent-soft-ink);
+}
+
+.btn--ghost {
+  --btn-bg: transparent;
+  --btn-ink: var(--ink);
+  box-shadow: inset 0 0 0 1.5px var(--line);
+}
+
+.btn--ghost:hover:not(:disabled) {
+  --btn-bg: var(--surface-2);
+}
+
+.btn--danger {
+  --btn-bg: var(--over-soft);
+  --btn-ink: var(--over-ink);
+}
+
+.icon-btn {
+  display: inline-grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--ink-2);
+  transition: background-color var(--dur) var(--ease), color var(--dur) var(--ease), transform 160ms var(--ease);
+  flex: none;
+}
+
+.icon-btn:hover:not(:disabled) {
+  background: var(--surface-2);
+  color: var(--ink);
+}
+
+.icon-btn:active:not(:disabled) {
+  transform: scale(0.92);
+}
+
+.icon-btn:disabled {
+  opacity: 0.35;
+}

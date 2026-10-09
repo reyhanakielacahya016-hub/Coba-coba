@@ -1,0 +1,70 @@
+.settings {
+  display: grid;
+  gap: 16px;
+  max-width: 720px;
+}
+
+.theme-opts {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+.theme-opt {
+  display: grid;
+  justify-items: center;
+  gap: 6px;
+  padding: 14px 8px;
+  min-height: 76px;
+  border-radius: var(--r-sm);
+  border: 1.5px solid var(--line);
+  background: var(--surface);
+  color: var(--ink-2);
+  font-weight: 600;
+  font-size: 0.88rem;
+  transition: all var(--dur) var(--ease);
+}
+
+.theme-opt:hover {
+  border-color: var(--ink-3);
+}
+
+.theme-opt.is-active {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+  color: var(--accent-soft-ink);
+}
+
+.settings-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 56px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.settings-row:last-child {
+  border-bottom: 0;
+}
+
+.settings-row__main {
+  flex: 1;
+  min-width: 0;
+  display: grid;
+}
+
+.settings-row__title {
+  font-weight: 600;
+}
+
+.settings-row__sub {
+  font-size: 0.82rem;
+  color: var(--ink-3);
+}
+
+.settings-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}

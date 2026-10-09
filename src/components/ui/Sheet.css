@@ -1,0 +1,128 @@
+.sheet {
+  border: 0;
+  padding: 0;
+  margin: auto auto 0;
+  width: 100%;
+  max-width: 100%;
+  max-height: 94dvh;
+  background: transparent;
+  color: var(--ink);
+  overflow: visible;
+}
+
+.sheet::backdrop {
+  background: rgb(17 21 19 / 0.38);
+  backdrop-filter: blur(2px);
+  animation: sheet-fade var(--dur) var(--ease);
+}
+
+.sheet.is-closing::backdrop {
+  animation: sheet-fade 200ms var(--ease) reverse forwards;
+}
+
+.sheet__panel {
+  display: flex;
+  flex-direction: column;
+  max-height: 94dvh;
+  background: var(--surface);
+  border-radius: var(--r-lg) var(--r-lg) 0 0;
+  box-shadow: var(--shadow-2);
+  padding-bottom: env(safe-area-inset-bottom);
+  animation: sheet-up 280ms var(--ease);
+}
+
+.sheet.is-closing .sheet__panel {
+  animation: sheet-down 200ms var(--ease) forwards;
+}
+
+.sheet__grip {
+  width: 40px;
+  height: 4px;
+  border-radius: 4px;
+  background: var(--surface-3);
+  margin: 10px auto 0;
+}
+
+.sheet__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 12px 4px 20px;
+}
+
+.sheet__title {
+  font-size: 1.3rem;
+  padding-top: 8px;
+}
+
+.sheet__desc {
+  color: var(--ink-2);
+  font-size: 0.9rem;
+  margin-top: 4px;
+}
+
+.sheet__body {
+  padding: 8px 20px 20px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.sheet__foot {
+  padding: 12px 20px 20px;
+  border-top: 1px solid var(--line);
+  display: flex;
+  gap: 10px;
+}
+
+.sheet__foot > * {
+  flex: 1;
+}
+
+@keyframes sheet-up {
+  from {
+    transform: translateY(40px);
+    opacity: 0;
+  }
+}
+
+@keyframes sheet-down {
+  to {
+    transform: translateY(40px);
+    opacity: 0;
+  }
+}
+
+@keyframes sheet-fade {
+  from {
+    opacity: 0;
+  }
+}
+
+@media (min-width: 640px) {
+  .sheet {
+    margin: auto;
+    width: min(calc(100% - 48px), 520px);
+  }
+
+  .sheet--sm {
+    width: min(calc(100% - 48px), 420px);
+  }
+
+  .sheet--lg {
+    width: min(calc(100% - 48px), 640px);
+  }
+
+  .sheet__panel {
+    border-radius: var(--r-lg);
+    max-height: 88dvh;
+  }
+
+  .sheet__grip {
+    display: none;
+  }
+
+  .sheet__head {
+    padding-top: 14px;
+  }
+}

@@ -1,0 +1,81 @@
+.tx-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+}
+
+.tx {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  min-height: 60px;
+  padding: 10px 10px;
+  border: 0;
+  border-radius: var(--r-sm);
+  background: transparent;
+  text-align: left;
+  transition: background-color var(--dur) var(--ease), transform 160ms var(--ease);
+}
+
+.tx:hover {
+  background: var(--surface-2);
+}
+
+.tx:active {
+  transform: scale(0.985);
+}
+
+.tx__avatar {
+  display: grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  border-radius: 14px;
+  background: var(--surface-2);
+  font-size: 1.25rem;
+  flex: none;
+}
+
+.tx:hover .tx__avatar {
+  background: var(--surface);
+}
+
+.tx__text {
+  flex: 1;
+  min-width: 0;
+  display: grid;
+}
+
+.tx__title {
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.tx__meta {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.8rem;
+  color: var(--ink-3);
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.tx__rec {
+  display: inline-grid;
+  place-items: center;
+  color: var(--accent);
+}
+
+.tx__amount {
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.tx__amount.is-income {
+  color: var(--accent);
+}
