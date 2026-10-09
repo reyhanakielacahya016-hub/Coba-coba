@@ -4,7 +4,7 @@ import { addMonthsToDate, isISODate, makeISO } from '../src/lib/dates.js';
 import { emptyData, normalizeData, SCHEMA_VERSION } from '../src/state/storage.js';
 import { reducer } from '../src/state/reducer.js';
 import { adjacentScope, defaultScope, periodForDate, rangeForDate, resolveRange } from '../src/state/scope.js';
-import { budgetStatus, pace, scaleBudget, totalsIn, weeklyTrend } from '../src/state/selectors.js';
+import { pace, scaleBudget, totalsIn, weeklyTrend } from '../src/state/selectors.js';
 
 const tx = (over) => ({
   id: Math.random().toString(36).slice(2), type: 'expense', amount: 10000, categoryId: 'lainnya-out',
@@ -80,7 +80,7 @@ describe('migrasi data lama', () => {
     expect(out.version).toBe(SCHEMA_VERSION);
     expect(out.periods).toEqual([]);
     expect(out.transactions).toHaveLength(1);
-    expect(out.categories.find((c) => c.id === 'jajan').budget).toBe(100000);
+    expect(out.limits[0]).toMatchObject({ target: 'jajan', amount: 100000 });
     expect(out.settings.theme).toBe('dark');
   });
 
@@ -153,11 +153,6 @@ describe('scope & jatah harian', () => {
   it('anggaran bulanan disesuaikan dengan panjang periode', () => {
     expect(scaleBudget(300000, { start: '2026-10-01', end: '2026-10-31' })).toBe(300000);
     expect(scaleBudget(300000, { start: '2026-10-01', end: '2026-10-10' })).toBe(100000);
-    const d = base();
-    d.categories.push({ id: 'jajan', name: 'Jajan', emoji: '🧋', type: 'expense', budget: 300000, locked: false });
-    d.transactions = [tx({ categoryId: 'jajan', amount: 90000, date: '2026-10-03' })];
-    const b = budgetStatus(d, { start: '2026-10-01', end: '2026-10-10' })[0];
-    expect(b).toMatchObject({ budget: 100000, monthly: 300000, level: 'warn' });
   });
 
   it('total dan tren mingguan mengikuti rentang', () => {

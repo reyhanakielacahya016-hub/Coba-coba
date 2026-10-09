@@ -1,9 +1,10 @@
-// Data contoh: dua bulan kehidupan anak kos, dibuat relatif terhadap hari ini
+// Data contoh: dua periode uang bulanan anak kos (mulai tanggal 25), dibuat relatif terhadap hari ini
 // supaya selalu terlihat "segar" kapan pun aplikasi dibuka.
 
-import { addDays, addMonths, monthOf, todayISO } from '../lib/dates.js';
-import { MONTHS } from '../lib/format.js';
+import { addDays, addMonths, addMonthsToDate, monthOf, todayISO } from '../lib/dates.js';
 import { uid } from '../lib/id.js';
+import { everyWindow, monthWindow } from '../lib/windows.js';
+import { applyCycles } from './cycles.js';
 import { applyRecurring } from './recurring.js';
 import { emptyData } from './storage.js';
 import { ALL_SUGGESTIONS, categoryFromSuggestion } from './suggestions.js';
@@ -30,9 +31,9 @@ export function buildSeedData(today = todayISO()) {
     data.categories.push(c);
   }
 
-  const thisMonth = monthOf(today);
-  const prevMonth = addMonths(thisMonth, -1);
-  const start = `${prevMonth}-01`;
+  // uang bulanan datang tiap tanggal 25: periode berjalan + satu periode sebelumnya
+  const current = monthWindow(today, 25);
+  const anchor = addMonthsToDate(current.start, -1);
   const tx = [];
   const add = (key, amount, date, note, type = 'expense') => {
     tx.push({
@@ -43,6 +44,7 @@ export function buildSeedData(today = todayISO()) {
       date,
       note,
       recurringId: null,
+      periodId: null,
       auto: false,
       createdAt: Date.now(),
     });
@@ -52,12 +54,12 @@ export function buildSeedData(today = todayISO()) {
   const snacks = ['Es teh', 'Kopi susu', 'Gorengan', 'Martabak', 'Boba', 'Roti bakar'];
   const rides = ['Ojol ke kampus', 'Bensin', 'Ojol pulang', 'Angkot'];
 
-  for (let d = start; d < today; d = addDays(d, 1)) {
+  for (let d = anchor; d < today; d = addDays(d, 1)) {
     const dayNum = Number(d.slice(8, 10));
     // makan 1–2x sehari
     add('makan', between(12000, 22000), d, pick(meals));
     if (rand() < 0.55) add('makan', between(10000, 18000), d, pick(meals));
-    if (rand() < 0.5) add('jajan', between(6000, 18000), d, pick(snacks));
+    if (rand() < 0.45) add('jajan', between(6000, 16000), d, pick(snacks));
     if (rand() < 0.4) add('transport', between(9000, 20000), d, pick(rides));
     if (dayNum === 3) add('pulsa', 75000, d, 'Paket data bulanan');
     if (dayNum === 6 || dayNum === 20) add('laundry', between(25000, 35000, 1000), d, 'Laundry kiloan');
@@ -67,56 +69,75 @@ export function buildSeedData(today = todayISO()) {
 
   // hari ini baru sarapan, supaya jatah harian terlihat "aman"
   add('makan', 14000, today, 'Bubur ayam');
-
-  // bulan lalu ada pemasukan tambahan dari kerja sampingan
-  add('sampingan', 400000, `${prevMonth}-18`, 'Jaga stand acara kampus', 'income');
-
-  // pastikan bulan ini ada contoh anggaran "hampir habis" & "lewat batas"
-  add('jajan', 35000, `${thisMonth}-01` <= today ? `${thisMonth}-01` : today, 'Traktir teman ulang tahun');
-  const yesterday = addDays(today, -1) >= `${thisMonth}-01` ? addDays(today, -1) : today;
+  // periode lalu ada pemasukan tambahan dari kerja sampingan
+  add('sampingan', 400000, addDays(anchor, 20), 'Jaga stand acara kampus', 'income');
+  const yesterday = addDays(today, -1) >= current.start ? addDays(today, -1) : today;
   add('hiburan', 45000, yesterday, 'Nonton bareng anak kos');
 
   data.transactions = tx;
 
-  // jadwal rutin: kiriman ortu & bayar kos tiap tanggal 1
+  // bayar kos tiap tanggal 1 (jadwal rutin bulanan biasa)
+  const firstKos = Number(anchor.slice(8, 10)) === 1 ? monthOf(anchor) : addMonths(monthOf(anchor), 1);
   data.recurring = [
     {
-      id: uid(), type: 'income', amount: 2500000, categoryId: cats.kiriman.id, note: 'Kiriman bulanan',
-      dayOfMonth: 1, startMonth: prevMonth, lastGenerated: null, active: true,
-    },
-    {
       id: uid(), type: 'expense', amount: 850000, categoryId: cats.kos.id, note: 'Bayar kos',
-      dayOfMonth: 1, startMonth: prevMonth, lastGenerated: null, active: true,
+      dayOfMonth: 1, startMonth: firstKos, lastGenerated: null, active: true,
     },
   ];
-
-  // anggaran: dibuat berdasarkan pengeluaran bulan ini supaya semua warna terlihat
-  const spentNow = (key) =>
-    tx.filter((t) => t.categoryId === cats[key].id && monthOf(t.date) === thisMonth).reduce((s, t) => s + t.amount, 0);
-  const roundUp = (n, step = 10000) => Math.max(step, Math.ceil(n / step) * step);
-  cats.makan.budget = 900000;
-  cats.transport.budget = 250000;
-  cats.pulsa.budget = 100000;
-  cats.jajan.budget = roundUp(spentNow('jajan') * 0.85); // sedikit lewat batas
-  cats.hiburan.budget = roundUp(spentNow('hiburan') / 0.88, 5000); // hampir habis
 
   // target tabungan
   const laptop = { id: uid(), name: 'Laptop baru', emoji: '💻', target: 7000000, deadline: addDays(today, 240), createdAt: Date.now(), achievedAt: null };
   const mudik = { id: uid(), name: 'Mudik lebaran', emoji: '🚆', target: 1200000, deadline: addDays(today, 150), createdAt: Date.now(), achievedAt: null };
   data.goals = [laptop, mudik];
-  const dep = (goal, amount, date, note = '') => data.deposits.push({ id: uid(), goalId: goal.id, amount, date, note });
-  dep(laptop, 300000, `${prevMonth}-02`, 'Sisihkan dari kiriman');
-  dep(laptop, 150000, `${prevMonth}-19`, 'Dari kerja sampingan');
-  dep(mudik, 100000, `${prevMonth}-05`);
-  dep(mudik, 100000, `${prevMonth}-25`);
-  dep(laptop, 300000, `${thisMonth}-02` <= today ? `${thisMonth}-02` : today, 'Sisihkan dari kiriman');
+  const dep = (goal, amount, date, note = '') => data.deposits.push({ id: uid(), goalId: goal.id, amount, date, note, periodId: null, auto: false });
+  dep(laptop, 200000, addDays(anchor, 1), 'Sisihkan dari kiriman');
+  dep(mudik, 100000, addDays(anchor, 10));
+  dep(laptop, 150000, addDays(anchor, 21), 'Dari kerja sampingan');
+  dep(laptop, 200000, addDays(current.start, 1) <= today ? addDays(current.start, 1) : today, 'Sisihkan dari kiriman');
 
-  // periode pemasukan: dari kiriman tanggal 1 sampai akhir bulan
-  data.periods = [
-    { id: uid(), name: `Kiriman ${MONTHS[Number(prevMonth.slice(5)) - 1]}`, start: `${prevMonth}-01`, end: addDays(`${thisMonth}-01`, -1), createdAt: Date.now() },
-    { id: uid(), name: `Kiriman ${MONTHS[Number(thisMonth.slice(5)) - 1]}`, start: `${thisMonth}-01`, end: addDays(`${addMonths(thisMonth, 1)}-01`, -1), createdAt: Date.now() },
+  // periode berulang: uang bulanan tiap tanggal 25, dicatat otomatis, sisa dibawa
+  data.cycles = [
+    {
+      id: uid(), name: 'Uang bulanan', kind: 'monthly', weekStart: 0, monthDay: 25, count: 1, unit: 'month',
+      anchor, repeat: true, income: { amount: 2500000, categoryId: cats.kiriman.id, auto: true, note: 'Kiriman ortu' },
+      carry: 'carry', goalId: null, active: true, until: null, createdAt: Date.now(),
+    },
   ];
 
-  data.settings = { theme: 'system', onboarded: true, lastBackup: null };
-  return applyRecurring(data, today);
+  const ready = applyCycles(applyRecurring(data, today), today);
+
+  // batasan: contoh dari setiap jenis, dibuat supaya semua warna terlihat
+  const spentIn = (key, r) =>
+    ready.transactions.filter((t) => t.type === 'expense' && t.categoryId === cats[key].id && t.date >= r.start && t.date <= r.end).reduce((s, t) => s + t.amount, 0);
+  const roundUp = (n, step = 5000) => Math.max(step, Math.ceil(n / step) * step);
+  const limit = (over) => ({
+    id: uid(), name: '', target: 'total', window: { kind: 'day' }, mode: 'fixed', amount: 0, percent: null,
+    rollover: 'reset', warnAt: 0.8, active: true, since: anchor, createdAt: Date.now(), ...over,
+  });
+
+  // jajan 10% dari pemasukan periode — sengaja sedikit lewat lewat satu traktiran
+  const income = 2500000;
+  const jajanCap = income * 0.1;
+  const jajanNow = spentIn('jajan', { start: current.start, end: today });
+  const treat = Math.max(30000, Math.round((jajanCap * 1.06 - jajanNow) / 1000) * 1000);
+  ready.transactions.push({
+    id: uid(), type: 'expense', amount: treat, categoryId: cats.jajan.id, date: current.start, note: 'Traktir teman ulang tahun',
+    recurringId: null, periodId: null, auto: false, createdAt: Date.now(),
+  });
+
+  // hiburan per 2 minggu — hampir habis
+  const hib = limit({ target: cats.hiburan.id, window: { kind: 'ndays', count: 14, anchor }, mode: 'fixed' });
+  const hibWin = everyWindow(today, { anchor, count: 14, unit: 'day' });
+  hib.amount = roundUp(Math.max(spentIn('hiburan', hibWin), 45000) / 0.88);
+
+  ready.limits = [
+    limit({ name: 'Jatah harian', mode: 'auto', skipRecurring: true }),
+    limit({ target: cats.makan.id, amount: 35000 }),
+    limit({ target: cats.jajan.id, window: { kind: 'period' }, mode: 'percent', percent: 10 }),
+    limit({ target: cats.transport.id, window: { kind: 'ndays', count: 3, anchor }, amount: 25000, rollover: 'carry' }),
+    hib,
+  ];
+
+  ready.settings = { theme: 'system', onboarded: true, lastBackup: null };
+  return ready;
 }

@@ -4,6 +4,7 @@
 import { addDays, addMonths, currentMonth, daysInclusive, diffDays, monthOf, monthRange, parseISO, todayISO } from '../lib/dates.js';
 import { DAYS, formatDateShort, formatRupiah } from '../lib/format.js';
 import { computeStreak } from '../lib/streak.js';
+import { periodLedger, rawTotals } from './ledger.js';
 
 export const WARN_AT = 0.8;
 
@@ -23,17 +24,16 @@ export function txInRange(data, r) {
   return data.transactions.filter((t) => inRange(t.date, r));
 }
 
-/** Ringkasan satu rentang. Sisa = pemasukan − pengeluaran − ditabung. */
+/**
+ * Ringkasan satu rentang. Sisa = sisa bawaan + pemasukan − pengeluaran − ditabung.
+ * Sisa bawaan (`carryIn`) hanya ada untuk periode yang periode sebelumnya
+ * memakai aturan "bawa sisa".
+ */
 export function totalsIn(data, r) {
-  let income = 0;
-  let expense = 0;
-  for (const t of data.transactions) {
-    if (!inRange(t.date, r)) continue;
-    if (t.type === 'income') income += t.amount;
-    else expense += t.amount;
-  }
-  const saved = data.deposits.filter((d) => inRange(d.date, r)).reduce((s, d) => s + d.amount, 0);
-  return { income, expense, saved, remaining: income - expense - saved };
+  const { income, expense, saved } = rawTotals(data, r);
+  const pid = r.kind === 'month' ? null : r.id;
+  const carryIn = pid ? periodLedger(data).get(pid)?.carryIn ?? 0 : 0;
+  return { income, expense, saved, carryIn, remaining: carryIn + income - expense - saved };
 }
 
 export function monthTotals(data, month) {
@@ -79,20 +79,25 @@ export function scaleBudget(monthly, r) {
   return Math.max(1000, Math.round((monthly * days) / 30 / 1000) * 1000);
 }
 
-/** Status anggaran setiap kategori pengeluaran yang punya batas, dalam rentang r. */
+/**
+ * Ringkasan batas kategori bernominal tetap dalam rentang r (tampilan ringkas lama).
+ * Batas per bulan disesuaikan dengan panjang rentang.
+ */
 export function budgetStatus(data, r) {
   const spent = new Map();
   for (const t of data.transactions) {
     if (t.type !== 'expense' || !inRange(t.date, r)) continue;
     spent.set(t.categoryId, (spent.get(t.categoryId) || 0) + t.amount);
   }
-  return data.categories
-    .filter((c) => c.type === 'expense' && c.budget)
-    .map((c) => {
+  const cats = categoryMap(data);
+  return data.limits
+    .filter((l) => l.active && l.target !== 'total' && l.mode === 'fixed' && l.window?.kind === 'month' && cats.has(l.target))
+    .map((l) => {
+      const c = cats.get(l.target);
       const s = spent.get(c.id) || 0;
-      const budget = scaleBudget(c.budget, r);
+      const budget = scaleBudget(l.amount, r);
       const ratio = s / budget;
-      return { category: c, spent: s, budget, monthly: c.budget, left: budget - s, ratio, level: budgetLevel(ratio) };
+      return { category: c, spent: s, budget, monthly: l.amount, left: budget - s, ratio, level: budgetLevel(ratio) };
     });
 }
 
@@ -165,8 +170,9 @@ export function pace(data, r, today = todayISO()) {
   const daysTotal = daysInclusive(r.start, r.end);
   const daysLeft = daysInclusive(today, r.end); // termasuk hari ini
   const daysElapsed = daysTotal - daysLeft + 1;
+  // tagihan rutin (mis. bayar kos) tidak dihitung sebagai jajan hari ini
   const spentToday = data.transactions
-    .filter((t) => t.type === 'expense' && t.date === today)
+    .filter((t) => t.type === 'expense' && t.date === today && !t.recurringId)
     .reduce((s, t) => s + t.amount, 0);
   // jatah dihitung dari kondisi awal hari ini, supaya tidak "turun" setiap kali mencatat
   const availableToday = totals.remaining + spentToday;
