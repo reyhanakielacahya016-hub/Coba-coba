@@ -10,7 +10,7 @@
   left: 12px;
   top: -60px;
   z-index: 100;
-  padding: 10px 16px;
+  padding: var(--space-3) var(--space-4);
   border-radius: var(--r-pill);
   background: var(--accent);
   color: var(--accent-ink);
@@ -26,7 +26,7 @@
   width: 100%;
   max-width: 720px;
   margin: 0 auto;
-  padding: calc(16px + env(safe-area-inset-top)) var(--gutter) calc(var(--nav-h) + 40px + env(safe-area-inset-bottom));
+  padding: calc(var(--space-4) + env(safe-area-inset-top)) var(--gutter) calc(var(--nav-h) + var(--space-8) + env(safe-area-inset-bottom));
 }
 
 .main:focus {
@@ -38,8 +38,8 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
-  margin-bottom: 20px;
+  gap: var(--space-3);
+  margin-bottom: var(--space-5);
   min-height: 48px;
 }
 
@@ -67,7 +67,7 @@
 .page-head__actions {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: var(--space-1);
 }
 
 .settings-link {
@@ -85,7 +85,7 @@
   grid-template-columns: repeat(5, 1fr);
   align-items: center;
   height: calc(var(--nav-h) + env(safe-area-inset-bottom));
-  padding: 0 8px env(safe-area-inset-bottom);
+  padding: 0 var(--space-2) env(safe-area-inset-bottom);
   background: color-mix(in srgb, var(--surface) 88%, transparent);
   backdrop-filter: saturate(1.4) blur(14px);
   -webkit-backdrop-filter: saturate(1.4) blur(14px);
@@ -97,7 +97,7 @@
   justify-items: center;
   gap: 2px;
   min-height: 52px;
-  padding: 6px 4px;
+  padding: var(--space-2) var(--space-1);
   border-radius: var(--r-sm);
   color: var(--ink-3);
   text-decoration: none;
@@ -182,8 +182,8 @@
     width: var(--sidebar-w);
     display: flex;
     flex-direction: column;
-    gap: 24px;
-    padding: 28px 18px;
+    gap: var(--space-6);
+    padding: var(--space-7) var(--space-5);
     border-right: 1px solid var(--line);
     background: color-mix(in srgb, var(--surface) 60%, transparent);
   }
@@ -191,16 +191,16 @@
   .sidebar__brand {
     color: var(--ink);
     text-decoration: none;
-    padding: 4px 8px;
+    padding: var(--space-1) var(--space-2);
     border-radius: var(--r-sm);
   }
 
   .sidebar__add {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: var(--space-3);
     min-height: 52px;
-    padding: 12px 18px;
+    padding: var(--space-3) var(--space-5);
     border: 0;
     border-radius: var(--r-md);
     background: var(--accent);
@@ -224,29 +224,29 @@
     margin-left: auto;
     font-family: var(--font-body);
     font-size: 0.75rem;
-    padding: 2px 7px;
+    padding: 2px var(--space-2);
     border-radius: 6px;
     background: rgb(255 255 255 / 0.18);
   }
 
   .sidebar__nav {
     display: grid;
-    gap: 4px;
+    gap: var(--space-1);
   }
 
   .sidebar__sep {
     height: 1px;
     background: var(--line);
-    margin: 10px 8px;
+    margin: var(--space-3) var(--space-2);
   }
 
   .sidebar .nav-link {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: var(--space-3);
     justify-items: start;
     min-height: 48px;
-    padding: 6px 10px;
+    padding: var(--space-2) var(--space-3);
     font-size: 0.95rem;
     color: var(--ink-2);
     border-radius: var(--r-sm);
@@ -272,11 +272,23 @@
     max-width: none;
     margin: 0 0 0 var(--sidebar-w);
     width: auto;
-    padding: 36px var(--gutter) 64px;
+    padding: var(--space-8) var(--gutter) var(--space-9);
   }
 
   .main > * {
     max-width: 1040px;
     margin-inline: auto;
+  }
+}
+
+/* ——— Transisi antar halaman ——— */
+.page {
+  animation: page-in 280ms var(--ease) both;
+}
+
+@keyframes page-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
   }
 }

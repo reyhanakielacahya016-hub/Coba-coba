@@ -4,15 +4,15 @@ import { formatRupiah } from '../../lib/format.js';
 import { useData } from '../../state/AppProvider.jsx';
 import { budgetStatus } from '../../state/selectors.js';
 
-/** Tiga anggaran yang paling mendekati batas. */
-export function BudgetPreview({ month }) {
+/** Tiga anggaran yang paling mendekati batas, dalam periode yang dilihat. */
+export function BudgetPreview({ range }) {
   const { data } = useData();
   const list = useMemo(
     () =>
-      budgetStatus(data, month)
+      budgetStatus(data, range)
         .sort((a, b) => b.ratio - a.ratio)
         .slice(0, 3),
-    [data, month],
+    [data, range],
   );
 
   return (
@@ -27,7 +27,7 @@ export function BudgetPreview({ month }) {
       </div>
       {list.length === 0 ? (
         <p className="muted bp__empty">
-          Belum ada anggaran. Coba pasang batas untuk kategori yang paling sering bikin kaget, misalnya jajan.
+          Belum ada anggaran. Coba pasang batas untuk kategori yang paling sering bikin kaget, misalnya jajan. Saku bisa menyarankan angkanya.
         </p>
       ) : (
         <ul className="bp">

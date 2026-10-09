@@ -1,21 +1,25 @@
 import { useEffect, useState } from 'react';
 import { Button } from '../../components/ui/Button.jsx';
-import { Chip, Field } from '../../components/ui/Form.jsx';
+import { DateField } from '../../components/ui/DateField.jsx';
+import { Chip } from '../../components/ui/Form.jsx';
 import { Sheet } from '../../components/ui/Sheet.jsx';
 import { addDays, addMonths, currentMonth, daysInMonth, todayISO } from '../../lib/dates.js';
 
 export const PRESETS = [
   { value: 'all', label: 'Semua waktu' },
+  { value: 'scope', label: 'Periode dipilih' },
   { value: '7d', label: '7 hari terakhir' },
   { value: 'this', label: 'Bulan ini' },
   { value: 'last', label: 'Bulan lalu' },
   { value: 'custom', label: 'Pilih tanggal' },
 ];
 
-export function presetRange(preset) {
+export function presetRange(preset, scopeRange) {
   const today = todayISO();
   const m = currentMonth();
   switch (preset) {
+    case 'scope':
+      return scopeRange ? { from: scopeRange.start, to: scopeRange.end } : { from: '', to: '' };
     case '7d':
       return { from: addDays(today, -6), to: today };
     case 'this':
@@ -29,7 +33,7 @@ export function presetRange(preset) {
   }
 }
 
-export function FilterSheet({ open, onClose, categories, categoryIds, range, onApply }) {
+export function FilterSheet({ open, onClose, categories, categoryIds, range, scopeRange, onApply }) {
   const [ids, setIds] = useState(categoryIds);
   const [r, setR] = useState(range);
 
@@ -39,6 +43,8 @@ export function FilterSheet({ open, onClose, categories, categoryIds, range, onA
       setR(range);
     }
   }, [open]);
+
+  const rangeError = r.preset === 'custom' && r.from && r.to && r.to < r.from ? 'Tanggal "sampai" tidak boleh sebelum tanggal "dari".' : '';
 
   const toggle = (id) => setIds((list) => (list.includes(id) ? list.filter((x) => x !== id) : [...list, id]));
 
@@ -58,7 +64,9 @@ export function FilterSheet({ open, onClose, categories, categoryIds, range, onA
           >
             Reset
           </Button>
-          <Button onClick={() => onApply(ids, r)}>Terapkan</Button>
+          <Button onClick={() => onApply(ids, r)} disabled={Boolean(rangeError)}>
+            Terapkan
+          </Button>
         </>
       }
     >
@@ -68,7 +76,7 @@ export function FilterSheet({ open, onClose, categories, categoryIds, range, onA
           <div className="chip-row">
             {PRESETS.map((p) => (
               <Chip key={p.value} selected={r.preset === p.value} onClick={() => setR({ ...r, preset: p.value })}>
-                {p.label}
+                {p.value === 'scope' && scopeRange ? scopeRange.title : p.label}
               </Chip>
             ))}
           </div>
@@ -76,12 +84,17 @@ export function FilterSheet({ open, onClose, categories, categoryIds, range, onA
 
         {r.preset === 'custom' && (
           <div className="filter-dates">
-            <Field label="Dari" id="f-from">
-              <input id="f-from" type="date" className="input" value={r.from} max={r.to || undefined} onChange={(e) => setR({ ...r, from: e.target.value })} />
-            </Field>
-            <Field label="Sampai" id="f-to">
-              <input id="f-to" type="date" className="input" value={r.to} min={r.from || undefined} onChange={(e) => setR({ ...r, to: e.target.value })} />
-            </Field>
+            <DateField label="Dari" value={r.from} onChange={(from) => setR({ ...r, from })} rangeStart={r.from} rangeEnd={r.to} clearable compact />
+            <DateField
+              label="Sampai"
+              value={r.to}
+              onChange={(to) => setR({ ...r, to })}
+              rangeStart={r.from}
+              rangeEnd={r.to}
+              error={rangeError}
+              clearable
+              compact
+            />
           </div>
         )}
 

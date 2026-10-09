@@ -49,6 +49,7 @@ export function reducer(state, action) {
         goals: mergeById(state.goals, incoming.goals),
         deposits: mergeById(state.deposits, incoming.deposits),
         checkins: [...new Set([...state.checkins, ...incoming.checkins])],
+        periods: mergeById(state.periods, incoming.periods || []),
       });
     }
 
@@ -142,6 +143,20 @@ export function reducer(state, action) {
           t.recurringId === action.id ? { ...t, recurringId: null } : t,
         ),
       };
+
+    // ——— Periode pemasukan ———
+    // Periode hanya "jendela waktu"; transaksi tidak ikut terhapus bila periode dihapus.
+    case 'ADD_PERIOD':
+      return { ...state, periods: [...state.periods, action.period] };
+
+    case 'UPDATE_PERIOD':
+      return {
+        ...state,
+        periods: state.periods.map((p) => (p.id === action.period.id ? { ...p, ...action.period } : p)),
+      };
+
+    case 'DELETE_PERIOD':
+      return { ...state, periods: state.periods.filter((p) => p.id !== action.id) };
 
     // ——— Tabungan ———
     case 'ADD_GOAL':

@@ -15,6 +15,9 @@ import App from './App.jsx';
 import { AppProvider } from './state/AppProvider.jsx';
 import { ToastProvider } from './hooks/useToast.jsx';
 import { ConfirmProvider } from './hooks/useConfirm.jsx';
+import { registerServiceWorker } from './pwa/pwa.js';
+
+registerServiceWorker();
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>

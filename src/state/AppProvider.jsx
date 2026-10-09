@@ -1,14 +1,15 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useReducer, useRef, useState } from 'react';
-import { currentMonth, todayISO } from '../lib/dates.js';
+import { todayISO } from '../lib/dates.js';
 import { reducer } from './reducer.js';
+import { resolveRange } from './scope.js';
 import { loadData, saveData } from './storage.js';
 
 const DataContext = createContext(null);
 const UiContext = createContext(null);
 
 /**
- * Menyimpan seluruh data aplikasi + state tampilan bersama (bulan terpilih,
- * sheet catat cepat). Data otomatis tersimpan ke localStorage.
+ * Menyimpan seluruh data aplikasi + state tampilan bersama (periode/bulan yang
+ * dilihat, sheet catat cepat, form periode). Data otomatis tersimpan ke localStorage.
  */
 export function AppProvider({ children }) {
   const [data, dispatch] = useReducer(reducer, null, () => reducer(loadData(), { type: 'RUN_RECURRING', today: todayISO() }));
@@ -38,16 +39,40 @@ export function AppProvider({ children }) {
     };
   }, []);
 
-  const [month, setMonth] = useState(currentMonth);
+  // scope = periode/bulan yang sedang dilihat. null = otomatis (periode berjalan, atau bulan ini)
+  const [scope, setScope] = useState(null);
+  const today = todayISO();
+  const range = useMemo(() => resolveRange(data, scope, today), [data, scope, today]);
   const [quickAdd, setQuickAdd] = useState(null); // null = tertutup, objek = terbuka (bisa berisi transaksi untuk diedit)
 
   const openQuickAdd = useCallback((preset = {}) => setQuickAdd({ ...preset }), []);
   const closeQuickAdd = useCallback(() => setQuickAdd(null), []);
 
+  // form periode & lembar "Ganti periode" bisa dibuka dari halaman mana pun
+  const [periodForm, setPeriodForm] = useState(null); // null | { period } | { preset }
+  const [scopeSheet, setScopeSheet] = useState(false);
+  const openPeriodForm = useCallback((arg = {}) => setPeriodForm({ ...arg }), []);
+  const closePeriodForm = useCallback(() => setPeriodForm(null), []);
+  const openScopeSheet = useCallback(() => setScopeSheet(true), []);
+  const closeScopeSheet = useCallback(() => setScopeSheet(false), []);
+
   const dataValue = useMemo(() => ({ data, dispatch }), [data]);
   const uiValue = useMemo(
-    () => ({ month, setMonth, quickAdd, openQuickAdd, closeQuickAdd }),
-    [month, quickAdd, openQuickAdd, closeQuickAdd],
+    () => ({
+      scope,
+      setScope,
+      range,
+      quickAdd,
+      openQuickAdd,
+      closeQuickAdd,
+      periodForm,
+      openPeriodForm,
+      closePeriodForm,
+      scopeSheet,
+      openScopeSheet,
+      closeScopeSheet,
+    }),
+    [scope, range, quickAdd, openQuickAdd, closeQuickAdd, periodForm, openPeriodForm, closePeriodForm, scopeSheet, openScopeSheet, closeScopeSheet],
   );
 
   return (

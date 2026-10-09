@@ -1,4 +1,4 @@
-import { ArrowRight, Lock, Plus, Sparkles, Target, Upload } from 'lucide-react';
+import { ArrowRight, CalendarRange, Lock, Plus, Sparkles, Target, Upload } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { Button } from '../../components/ui/Button.jsx';
 import { EmojiPicker } from '../../components/ui/EmojiPicker.jsx';
@@ -114,6 +114,10 @@ function Welcome({ headingRef }) {
         <li>
           <span className="onb__ficon"><Plus size={20} /></span>
           <span><strong>Catat dalam 3 ketukan.</strong> Tombol ＋ selalu ada di bawah.</span>
+        </li>
+        <li>
+          <span className="onb__ficon"><CalendarRange size={20} /></span>
+          <span><strong>Periode & jatah harian.</strong> Atur sampai kapan kiriman harus cukup, Saku hitung jatah per hari.</span>
         </li>
         <li>
           <span className="onb__ficon"><Target size={20} /></span>

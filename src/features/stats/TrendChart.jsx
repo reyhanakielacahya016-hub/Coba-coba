@@ -1,5 +1,5 @@
 import { useId, useMemo, useRef, useState } from 'react';
-import { formatMonth, formatRupiah, formatShort } from '../../lib/format.js';
+import { formatRupiah, formatShort } from '../../lib/format.js';
 
 const H = 180; // tinggi area plot
 const PAD_TOP = 12;
@@ -17,7 +17,7 @@ function niceMax(v) {
  * Grafik kolom pengeluaran (harian / mingguan).
  * Arahkan kursor, sentuh, atau pakai tombol panah untuk melihat detail tiap kolom.
  */
-export function TrendChart({ points, mode, month, todayIndex, average }) {
+export function TrendChart({ points, mode, todayIndex, average }) {
   const [active, setActive] = useState(null);
   const [showTable, setShowTable] = useState(false);
   const wrapRef = useRef(null);
@@ -30,11 +30,12 @@ export function TrendChart({ points, mode, month, todayIndex, average }) {
   const y = (v) => PAD_TOP + H - (v / max) * H;
   const ticks = [0, max / 2, max];
 
-  const label = (p) => (mode === 'daily' ? `${p.label} ${formatMonth(month).split(' ')[0]}` : `Tanggal ${p.label}`);
+  const label = (p) => p.long ?? p.label;
   const showLabel = (i) => {
     if (mode === 'weekly' || i === todayIndex) return true;
     if (todayIndex >= 0 && Math.abs(i - todayIndex) <= 2) return false; // beri ruang untuk label "Hari ini"
-    return i === 0 || (i + 1) % 5 === 0;
+    const step = n > 40 ? 10 : 5;
+    return i === 0 || (i + 1) % step === 0;
   };
 
   const pickFromPointer = (clientX) => {

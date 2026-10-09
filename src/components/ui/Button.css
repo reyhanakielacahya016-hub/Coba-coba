@@ -4,7 +4,7 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
+  gap: var(--space-2);
   border: 0;
   border-radius: var(--r-pill);
   background: var(--btn-bg);
@@ -34,19 +34,19 @@
 
 .btn--sm {
   min-height: 36px;
-  padding: 6px 14px;
+  padding: var(--space-2) var(--space-4);
   font-size: 0.875rem;
 }
 
 .btn--md {
   min-height: 48px;
-  padding: 10px 20px;
+  padding: var(--space-3) var(--space-5);
   font-size: 0.975rem;
 }
 
 .btn--lg {
   min-height: 56px;
-  padding: 14px 24px;
+  padding: var(--space-4) var(--space-6);
   font-size: 1.05rem;
 }
 

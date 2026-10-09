@@ -2,7 +2,8 @@ import { Trash2 } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { Button } from '../../../components/ui/Button.jsx';
 import { EmojiPicker } from '../../../components/ui/EmojiPicker.jsx';
-import { AmountInput, Field, TextInput } from '../../../components/ui/Form.jsx';
+import { DateField } from '../../../components/ui/DateField.jsx';
+import { AmountInput, TextInput } from '../../../components/ui/Form.jsx';
 import { Sheet } from '../../../components/ui/Sheet.jsx';
 import { useConfirm } from '../../../hooks/useConfirm.jsx';
 import { useToast } from '../../../hooks/useToast.jsx';
@@ -102,23 +103,23 @@ export function GoalFormSheet({ state, onClose }) {
           <TextInput ref={nameRef} placeholder="Nama target, mis. Laptop baru" aria-label="Nama target" value={name} maxLength={40} onChange={(e) => setName(e.target.value)} />
         </div>
         <AmountInput label="Jumlah yang ingin dikumpulkan" value={target} onChange={setTarget} tone="income" />
-        <Field label="Tenggat (opsional)" id="goal-deadline" hint="Dengan tenggat, Saku bisa menyarankan setoran per minggu.">
-          <div className="goal-deadline">
-            <input id="goal-deadline" type="date" className="input" value={deadline} min={today} onChange={(e) => setDeadline(e.target.value)} />
-            <div className="chip-row">
-              {quickDeadlines.map((q) => (
-                <button key={q.label} type="button" className={`chip ${deadline === q.value ? 'is-selected' : ''}`} onClick={() => setDeadline(q.value)}>
-                  {q.label}
-                </button>
-              ))}
-              {deadline && (
-                <button type="button" className="chip chip--dashed" onClick={() => setDeadline('')}>
-                  Tanpa tenggat
-                </button>
-              )}
-            </div>
+        <div className="goal-deadline">
+          <DateField
+            label="Tenggat (opsional)"
+            value={deadline}
+            onChange={setDeadline}
+            min={editing ? undefined : today}
+            clearable
+            hint={deadline ? undefined : 'Dengan tenggat, Saku bisa menyarankan setoran per minggu.'}
+          />
+          <div className="chip-row">
+            {quickDeadlines.map((q) => (
+              <button key={q.label} type="button" className={`chip ${deadline === q.value ? 'is-selected' : ''}`} onClick={() => setDeadline(q.value)}>
+                {q.label}
+              </button>
+            ))}
           </div>
-        </Field>
+        </div>
         <button type="submit" hidden />
       </form>
     </Sheet>

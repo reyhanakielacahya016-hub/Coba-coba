@@ -2,6 +2,7 @@
 // supaya selalu terlihat "segar" kapan pun aplikasi dibuka.
 
 import { addDays, addMonths, monthOf, todayISO } from '../lib/dates.js';
+import { MONTHS } from '../lib/format.js';
 import { uid } from '../lib/id.js';
 import { applyRecurring } from './recurring.js';
 import { emptyData } from './storage.js';
@@ -51,7 +52,7 @@ export function buildSeedData(today = todayISO()) {
   const snacks = ['Es teh', 'Kopi susu', 'Gorengan', 'Martabak', 'Boba', 'Roti bakar'];
   const rides = ['Ojol ke kampus', 'Bensin', 'Ojol pulang', 'Angkot'];
 
-  for (let d = start; d <= today; d = addDays(d, 1)) {
+  for (let d = start; d < today; d = addDays(d, 1)) {
     const dayNum = Number(d.slice(8, 10));
     // makan 1–2x sehari
     add('makan', between(12000, 22000), d, pick(meals));
@@ -64,12 +65,16 @@ export function buildSeedData(today = todayISO()) {
     if (rand() < 0.07) add('hiburan', between(30000, 55000, 1000), d, pick(['Nonton bioskop', 'Futsal', 'Karaoke']));
   }
 
+  // hari ini baru sarapan, supaya jatah harian terlihat "aman"
+  add('makan', 14000, today, 'Bubur ayam');
+
   // bulan lalu ada pemasukan tambahan dari kerja sampingan
   add('sampingan', 400000, `${prevMonth}-18`, 'Jaga stand acara kampus', 'income');
 
   // pastikan bulan ini ada contoh anggaran "hampir habis" & "lewat batas"
   add('jajan', 35000, `${thisMonth}-01` <= today ? `${thisMonth}-01` : today, 'Traktir teman ulang tahun');
-  add('hiburan', 45000, today, 'Nonton bareng anak kos');
+  const yesterday = addDays(today, -1) >= `${thisMonth}-01` ? addDays(today, -1) : today;
+  add('hiburan', 45000, yesterday, 'Nonton bareng anak kos');
 
   data.transactions = tx;
 
@@ -100,11 +105,17 @@ export function buildSeedData(today = todayISO()) {
   const mudik = { id: uid(), name: 'Mudik lebaran', emoji: '🚆', target: 1200000, deadline: addDays(today, 150), createdAt: Date.now(), achievedAt: null };
   data.goals = [laptop, mudik];
   const dep = (goal, amount, date, note = '') => data.deposits.push({ id: uid(), goalId: goal.id, amount, date, note });
-  dep(laptop, 500000, `${prevMonth}-02`, 'Sisihkan dari kiriman');
-  dep(laptop, 250000, `${prevMonth}-19`, 'Dari kerja sampingan');
-  dep(mudik, 200000, `${prevMonth}-05`);
-  dep(mudik, 150000, `${prevMonth}-25`);
+  dep(laptop, 300000, `${prevMonth}-02`, 'Sisihkan dari kiriman');
+  dep(laptop, 150000, `${prevMonth}-19`, 'Dari kerja sampingan');
+  dep(mudik, 100000, `${prevMonth}-05`);
+  dep(mudik, 100000, `${prevMonth}-25`);
   dep(laptop, 300000, `${thisMonth}-02` <= today ? `${thisMonth}-02` : today, 'Sisihkan dari kiriman');
+
+  // periode pemasukan: dari kiriman tanggal 1 sampai akhir bulan
+  data.periods = [
+    { id: uid(), name: `Kiriman ${MONTHS[Number(prevMonth.slice(5)) - 1]}`, start: `${prevMonth}-01`, end: addDays(`${thisMonth}-01`, -1), createdAt: Date.now() },
+    { id: uid(), name: `Kiriman ${MONTHS[Number(thisMonth.slice(5)) - 1]}`, start: `${thisMonth}-01`, end: addDays(`${addMonths(thisMonth, 1)}-01`, -1), createdAt: Date.now() },
+  ];
 
   data.settings = { theme: 'system', onboarded: true, lastBackup: null };
   return applyRecurring(data, today);

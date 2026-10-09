@@ -3,8 +3,9 @@
 
 import { makeFallbackCategories } from './suggestions.js';
 
+// Nama kunci tetap 'saku:v1' supaya data lama terbaca; versi struktur ada di field `version`.
 export const STORAGE_KEY = 'saku:v1';
-export const SCHEMA_VERSION = 1;
+export const SCHEMA_VERSION = 2;
 
 export function emptyData() {
   return {
@@ -16,6 +17,7 @@ export function emptyData() {
     goals: [],
     deposits: [],
     checkins: [],
+    periods: [],
   };
 }
 
@@ -27,9 +29,15 @@ const isMonth = (v) => typeof v === 'string' && /^\d{4}-\d{2}$/.test(v);
 const type = (v) => (v === 'income' ? 'income' : 'expense');
 
 /** Ubah data dari versi lama ke versi terbaru. Tambahkan langkah baru di sini. */
-function migrate(raw) {
+export function migrate(raw) {
   const data = { ...raw };
-  // contoh: if (data.version === 1) { ...; data.version = 2; }
+  const from = Number(data.version) || 1;
+  // v1 -> v2: fitur periode pemasukan. Data lama belum punya periode, jadi
+  // dimulai dengan daftar kosong; semua transaksi tetap utuh dan tetap
+  // bisa dilihat per bulan kalender.
+  if (from < 2) {
+    data.periods = Array.isArray(data.periods) ? data.periods : [];
+  }
   data.version = SCHEMA_VERSION;
   return data;
 }
@@ -131,6 +139,15 @@ export function normalizeData(raw) {
     goals,
     deposits,
     checkins: [...new Set(arr(data.checkins).filter(isDate))],
+    periods: arr(data.periods)
+      .filter((p) => isObj(p) && p.id && isDate(p.start) && isDate(p.end) && p.end >= p.start)
+      .map((p) => ({
+        id: String(p.id),
+        name: String(p.name || '').slice(0, 60),
+        start: p.start,
+        end: p.end,
+        createdAt: int(p.createdAt) || Date.now(),
+      })),
   };
 }
 

@@ -1,20 +1,47 @@
-import { ChevronRight } from 'lucide-react';
+import { ChevronRight, Sparkles } from 'lucide-react';
 import { useMemo, useState } from 'react';
-import { MonthPicker } from '../../../components/ui/MonthPicker.jsx';
+import { Button } from '../../../components/ui/Button.jsx';
 import { ProgressBar } from '../../../components/ui/ProgressBar.jsx';
 import { EmptyState } from '../../../components/ui/EmptyState.jsx';
-import { formatMonth, formatRupiah } from '../../../lib/format.js';
+import { monthOf } from '../../../lib/dates.js';
+import { formatRupiah } from '../../../lib/format.js';
+import { useToast } from '../../../hooks/useToast.jsx';
+import { PeriodSwitcher } from '../../periods/PeriodSwitcher.jsx';
 import { useData, useUi } from '../../../state/AppProvider.jsx';
-import { budgetLevel, budgetMessage, budgetStatus, sortCategories, spendingByCategory } from '../../../state/selectors.js';
+import { averageSpending, budgetLevel, budgetMessage, budgetStatus, isFullMonth, sortCategories, spendingByCategory } from '../../../state/selectors.js';
 import { BudgetEditSheet } from './BudgetEditSheet.jsx';
 
 export function BudgetList() {
-  const { data } = useData();
-  const { month, setMonth } = useUi();
+  const { data, dispatch } = useData();
+  const { range } = useUi();
+  const toast = useToast();
   const [editing, setEditing] = useState(null);
 
-  const status = useMemo(() => budgetStatus(data, month), [data, month]);
-  const spent = useMemo(() => new Map(spendingByCategory(data, month).map((s) => [s.category.id, s.amount])), [data, month]);
+  const status = useMemo(() => budgetStatus(data, range), [data, range]);
+  const spent = useMemo(() => new Map(spendingByCategory(data, range).map((s) => [s.category.id, s.amount])), [data, range]);
+  const scaled = !isFullMonth(range);
+  const month = monthOf(range.end);
+
+  // saran anggaran otomatis dari rata-rata 3 bulan terakhir
+  const suggestions = useMemo(
+    () =>
+      data.categories
+        .filter((c) => c.type === 'expense' && !c.budget && !c.locked)
+        .map((c) => ({ c, avg: averageSpending(data, c.id, month) }))
+        .filter((x) => x.avg > 0)
+        .sort((a, b) => b.avg - a.avg)
+        .slice(0, 5),
+    [data, month],
+  );
+  const applySuggestions = () => {
+    const snapshot = data;
+    for (const { c, avg } of suggestions) dispatch({ type: 'SET_BUDGET', id: c.id, budget: Math.ceil(avg / 10000) * 10000 });
+    toast({
+      message: `${suggestions.length} anggaran dipasang dari rata-rata pengeluaranmu.`,
+      icon: <Sparkles size={16} />,
+      action: { label: 'Urungkan', onClick: () => dispatch({ type: 'REPLACE_ALL', data: snapshot }) },
+    });
+  };
   const unbudgeted = useMemo(
     () => sortCategories(data.categories.filter((c) => c.type === 'expense' && !c.budget)),
     [data.categories],
@@ -27,14 +54,12 @@ export function BudgetList() {
 
   return (
     <div className="stack">
-      <div className="plan__picker">
-        <MonthPicker value={month} onChange={setMonth} />
-      </div>
+      <PeriodSwitcher />
 
       {status.length > 0 ? (
         <section className="card budget-total" aria-labelledby="bt-title">
           <p id="bt-title" className="budget-total__label">
-            Anggaran {formatMonth(month)}
+            Anggaran · {range.title}
           </p>
           <p className="budget-total__nums">
             <span className="budget-total__used num">{formatRupiah(used)}</span>
@@ -44,13 +69,31 @@ export function BudgetList() {
           <p className="muted budget-total__note">
             {total - used >= 0
               ? `Masih ada ${formatRupiah(total - used)} untuk kategori yang dianggarkan.`
-              : `Lewat ${formatRupiah(used - total)} dari total rencana. Tidak apa-apa, ini bahan belajar untuk bulan depan.`}
+              : `Lewat ${formatRupiah(used - total)} dari total rencana. Tidak apa-apa, ini bahan belajar untuk periode berikutnya.`}
           </p>
+          {scaled && (
+            <p className="budget-total__scaled">
+              Anggaran disimpan per bulan, lalu disesuaikan untuk {range.days} hari {range.kind === 'period' ? 'periode' : ''} ini.
+            </p>
+          )}
         </section>
       ) : (
         <div className="card">
-          <EmptyState emoji="🎯" title="Belum ada anggaran">
-            Pasang batas bulanan untuk kategori yang sering bikin kaget. Ketuk salah satu kategori di bawah untuk mulai.
+          <EmptyState
+            illustration="target"
+            title="Belum ada anggaran"
+            action={
+              suggestions.length > 0 && (
+                <Button onClick={applySuggestions}>
+                  <Sparkles size={18} /> Pasang otomatis ({suggestions.length} kategori)
+                </Button>
+              )
+            }
+          >
+            Pasang batas bulanan untuk kategori yang sering bikin kaget.{' '}
+            {suggestions.length > 0
+              ? 'Saku bisa mengisinya dari rata-rata pengeluaranmu, atau ketuk kategori di bawah untuk mengatur sendiri.'
+              : 'Ketuk salah satu kategori di bawah untuk mulai.'}
           </EmptyState>
         </div>
       )}
@@ -73,6 +116,7 @@ export function BudgetList() {
                   <span className="num">
                     <strong>{formatRupiah(b.spent)}</strong> / {formatRupiah(b.budget)}
                   </span>
+                  {scaled && <span className="budget-row__monthly num">{formatRupiah(b.monthly)}/bulan</span>}
                 </span>
                 <span className="budget-row__msg">{budgetMessage(b)}</span>
               </button>
@@ -95,7 +139,7 @@ export function BudgetList() {
                   </span>
                   <span className="plain-row__main">
                     <span className="plain-row__title">{c.name}</span>
-                    <span className="plain-row__sub num">Terpakai {formatRupiah(spent.get(c.id) || 0)} bulan ini</span>
+                    <span className="plain-row__sub num">Terpakai {formatRupiah(spent.get(c.id) || 0)} {range.kind === 'period' ? 'periode ini' : 'bulan ini'}</span>
                   </span>
                   <span className="plain-row__cta">
                     Atur <ChevronRight size={16} />
@@ -105,6 +149,15 @@ export function BudgetList() {
             ))}
           </ul>
         </section>
+      )}
+
+      {status.length > 0 && suggestions.length > 0 && (
+        <button type="button" className="suggest-banner" onClick={applySuggestions}>
+          <Sparkles size={18} aria-hidden="true" />
+          <span>
+            <strong>Saran:</strong> pasang anggaran untuk {suggestions.map((x) => x.c.name).join(', ')} dari rata-rata pengeluaranmu.
+          </span>
+        </button>
       )}
 
       <BudgetEditSheet category={editing} month={month} onClose={() => setEditing(null)} />

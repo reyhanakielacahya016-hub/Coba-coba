@@ -2,7 +2,7 @@ import { useEffect, useRef } from 'react';
 import { AppShell } from './components/layout/AppShell.jsx';
 import { useHashRoute } from './hooks/useHashRoute.js';
 import { useTheme } from './hooks/useTheme.js';
-import { useData } from './state/AppProvider.jsx';
+import { useData, useUi } from './state/AppProvider.jsx';
 import { DashboardPage } from './features/dashboard/DashboardPage.jsx';
 import { Onboarding } from './features/onboarding/Onboarding.jsx';
 import { SettingsPage } from './features/settings/SettingsPage.jsx';
@@ -10,6 +10,9 @@ import { HistoryPage } from './features/transactions/HistoryPage.jsx';
 import { PlanPage } from './features/plan/PlanPage.jsx';
 import { StatsPage } from './features/stats/StatsPage.jsx';
 import { QuickAddSheet } from './features/transactions/QuickAddSheet.jsx';
+import { UpdateNotice } from './pwa/InstallPrompt.jsx';
+import { PeriodFormSheet } from './features/periods/PeriodFormSheet.jsx';
+import { ScopeSheet } from './features/periods/PeriodSwitcher.jsx';
 
 const TITLES = { '': 'Beranda', riwayat: 'Riwayat', rencana: 'Rencana', statistik: 'Statistik', pengaturan: 'Pengaturan' };
 
@@ -23,7 +26,8 @@ const PAGES = {
 
 export default function App() {
   const { data } = useData();
-  const [route] = useHashRoute();
+  const { openQuickAdd } = useUi();
+  const [route, navigate] = useHashRoute();
   useTheme(data.settings.theme);
 
   const section = route.split('/')[0];
@@ -39,6 +43,14 @@ export default function App() {
     document.getElementById('main')?.focus({ preventScroll: true });
   }, [section]);
 
+  // pintasan dari ikon aplikasi (#/catat): buka sheet catat lalu kembali ke beranda
+  useEffect(() => {
+    if (section === 'catat' && data.settings.onboarded) {
+      navigate('');
+      openQuickAdd();
+    }
+  }, [section, data.settings.onboarded, navigate, openQuickAdd]);
+
   if (!data.settings.onboarded) return <Onboarding />;
 
   const Page = PAGES[section] ?? DashboardPage;
@@ -46,9 +58,14 @@ export default function App() {
   return (
     <>
       <AppShell route={route}>
-        <Page key={section} route={route} />
+        <div className="page" key={section}>
+          <Page route={route} />
+        </div>
       </AppShell>
       <QuickAddSheet />
+      <ScopeSheet />
+      <PeriodFormSheet />
+      <UpdateNotice />
     </>
   );
 }

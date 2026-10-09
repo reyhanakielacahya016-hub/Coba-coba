@@ -1,18 +1,23 @@
-import { ArrowDownLeft, ArrowUpRight, PiggyBank, Plus } from 'lucide-react';
+import { ArrowDownLeft, ArrowUpRight, CalendarPlus, PiggyBank, Plus } from 'lucide-react';
 import { useMemo } from 'react';
 import { SettingsLink } from '../../components/layout/AppShell.jsx';
 import { Logo } from '../../components/layout/Logo.jsx';
 import { AnimatedRupiah } from '../../components/ui/AnimatedNumber.jsx';
 import { Button } from '../../components/ui/Button.jsx';
 import { EmptyState } from '../../components/ui/EmptyState.jsx';
-import { MonthPicker } from '../../components/ui/MonthPicker.jsx';
-import { relativeDayLabel } from '../../lib/dates.js';
-import { formatMonth } from '../../lib/format.js';
+import { addDays, relativeDayLabel, todayISO } from '../../lib/dates.js';
 import { useData, useUi } from '../../state/AppProvider.jsx';
-import { categoryMap, monthInsight, monthTotals, txInMonth } from '../../state/selectors.js';
+import { periodForDate } from '../../state/scope.js';
+import { categoryMap, pace as computePace, rangeInsight, totalsIn, txInRange } from '../../state/selectors.js';
+import { InstallPrompt } from '../../pwa/InstallPrompt.jsx';
+import { PeriodSwitcher } from '../periods/PeriodSwitcher.jsx';
 import { TransactionItem } from '../transactions/TransactionItem.jsx';
 import { BudgetPreview } from './BudgetPreview.jsx';
+import { PeriodHero } from './PeriodHero.jsx';
+import { GoalsPreview, PeriodCta, TipCard, useEndingSoon } from './SideCards.jsx';
 import { StreakCard } from './StreakCard.jsx';
+import { TodayCard } from './TodayCard.jsx';
+import { WeekChart } from './WeekChart.jsx';
 import './Dashboard.css';
 
 function greeting() {
@@ -25,70 +30,80 @@ function greeting() {
 
 export function DashboardPage() {
   const { data } = useData();
-  const { month, setMonth, openQuickAdd } = useUi();
+  const { range, openQuickAdd, openPeriodForm } = useUi();
+  const today = todayISO();
 
-  const totals = useMemo(() => monthTotals(data, month), [data, month]);
-  const insight = useMemo(() => monthInsight(data, month), [data, month]);
+  const totals = useMemo(() => totalsIn(data, range), [data, range]);
+  const pace = useMemo(() => computePace(data, range, today), [data, range, today]);
+  const insight = useMemo(() => rangeInsight(data, range, today), [data, range, today]);
   const cats = useMemo(() => categoryMap(data), [data]);
   const recent = useMemo(
     () =>
-      txInMonth(data, month)
+      txInRange(data, range)
         .sort((a, b) => b.date.localeCompare(a.date) || b.createdAt - a.createdAt)
         .slice(0, 5),
-    [data, month],
+    [data, range],
   );
-
-  const usedRatio = totals.income ? Math.min(1, (totals.expense + totals.saved) / totals.income) : 0;
-  const negative = totals.remaining < 0;
-  const monthName = formatMonth(month).split(' ')[0];
+  const endingIn = useEndingSoon(range);
+  const hasRunningPeriod = Boolean(periodForDate(data, today));
 
   return (
     <div className="dash">
       <header className="dash__top">
         <div className="dash__hello">
           <span className="dash__logo-m">
-            <Logo size={34} withName={false} />
+            <Logo size={36} withName={false} />
           </span>
           <div>
             <p className="dash__greet">{greeting()} 👋</p>
-            <h1 className="dash__title">Uangmu bulan ini</h1>
+            <h1 className="dash__title">Uangmu {range.kind === 'period' ? 'periode ini' : 'bulan ini'}</h1>
           </div>
         </div>
         <SettingsLink />
       </header>
 
-      <div className="dash__picker">
-        <MonthPicker value={month} onChange={setMonth} />
-      </div>
+      <PeriodSwitcher />
+
+      {endingIn !== null && (
+        <div className="banner" role="status">
+          <span>
+            {endingIn === 0 ? 'Periode ini berakhir hari ini.' : `Periode ini berakhir ${endingIn} hari lagi.`} Siapkan periode berikutnya?
+          </span>
+          <Button size="sm" variant="soft" onClick={() => openPeriodForm({ preset: { start: addDays(range.end, 1) } })}>
+            <CalendarPlus size={16} /> Siapkan
+          </Button>
+        </div>
+      )}
 
       <div className="dash__grid">
-        <div className="dash__col">
-          <section className={`hero card ${negative ? 'is-negative' : ''}`} aria-labelledby="hero-label">
-            <p id="hero-label" className="hero__label">
-              Sisa uang {monthName}
-            </p>
-            <AnimatedRupiah value={totals.remaining} className="hero__amount" />
-            {totals.income > 0 && (
-              <div className="hero__usage">
-                <div className="hero__bar" aria-hidden="true">
-                  <span style={{ width: `${usedRatio * 100}%` }} />
-                </div>
-                <p className="hero__usage-text">{Math.round(usedRatio * 100)}% pemasukan sudah terpakai atau ditabung</p>
-              </div>
-            )}
-            <p className={`hero__insight tone-${insight.tone}`}>{insight.text}</p>
-          </section>
+        <div className="dash__col dash__col--main">
+          <PeriodHero
+            range={range}
+            totals={totals}
+            pace={pace}
+            insight={insight}
+            hasPeriods={data.periods.length > 0}
+            onAddIncome={() => openQuickAdd({ type: 'income' })}
+            onNewPeriod={() => openPeriodForm()}
+          />
 
-          <section className="summary" aria-label="Ringkasan bulan">
+          <section className="summary" aria-label="Ringkasan">
             <SummaryTile icon={<ArrowDownLeft size={18} />} label="Pemasukan" value={totals.income} tone="income" />
             <SummaryTile icon={<ArrowUpRight size={18} />} label="Pengeluaran" value={totals.expense} tone="expense" />
             <SummaryTile icon={<PiggyBank size={18} />} label="Ditabung" value={totals.saved} tone="saved" />
           </section>
+
+          {pace && pace.level !== 'none' && <TodayCard pace={pace} onAdd={() => openQuickAdd()} />}
+          {!hasRunningPeriod && totals.income + totals.expense > 0 && <PeriodCta />}
+          <WeekChart allowance={pace?.allowance ?? 0} />
         </div>
 
-        <div className="dash__col">
+        <div className="dash__col dash__col--side">
+          <InstallPrompt />
           <StreakCard />
-          <BudgetPreview month={month} />
+          <BudgetPreview range={range} />
+          <GoalsPreview />
+          <TipCard />
         </div>
 
         <section className="section dash__recent card" aria-labelledby="recent-title">
@@ -105,15 +120,15 @@ export function DashboardPage() {
           {recent.length === 0 ? (
             <EmptyState
               compact
-              emoji="📝"
-              title="Belum ada catatan"
+              illustration="notes"
+              title={range.status === 'upcoming' ? 'Periode ini belum dimulai' : 'Belum ada catatan di sini'}
               action={
                 <Button onClick={() => openQuickAdd()}>
-                  <Plus size={18} /> Catat yang pertama
+                  <Plus size={18} /> Catat transaksi
                 </Button>
               }
             >
-              Catatan pertamamu bisa sesederhana “es teh Rp 5.000”.
+              Catatan pertama bisa sesederhana “es teh Rp 5.000”. Cukup 3 ketukan.
             </EmptyState>
           ) : (
             <ul className="tx-list enter-stagger">

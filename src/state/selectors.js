@@ -1,8 +1,8 @@
 // Fungsi-fungsi "membaca" data: menghitung total, sisa, anggaran, tren, dll.
 // Semuanya murni (tanpa efek samping) sehingga mudah dites.
 
-import { addDays, addMonths, currentMonth, daysInMonth, diffDays, monthOf, todayISO, weekOfMonth } from '../lib/dates.js';
-import { formatRupiah } from '../lib/format.js';
+import { addDays, addMonths, currentMonth, daysInclusive, diffDays, monthOf, monthRange, parseISO, todayISO } from '../lib/dates.js';
+import { DAYS, formatDateShort, formatRupiah } from '../lib/format.js';
 import { computeStreak } from '../lib/streak.js';
 
 export const WARN_AT = 0.8;
@@ -17,29 +17,35 @@ export function sortCategories(list) {
   return list.map((c, i) => ({ c, i })).sort((a, b) => rank(a.c) - rank(b.c) || a.i - b.i).map((x) => x.c);
 }
 
-export function txInMonth(data, month) {
-  return data.transactions.filter((t) => monthOf(t.date) === month);
+export const inRange = (date, r) => date >= r.start && date <= r.end;
+
+export function txInRange(data, r) {
+  return data.transactions.filter((t) => inRange(t.date, r));
 }
 
-/** Ringkasan satu bulan. Sisa = pemasukan − pengeluaran − ditabung. */
-export function monthTotals(data, month) {
+/** Ringkasan satu rentang. Sisa = pemasukan − pengeluaran − ditabung. */
+export function totalsIn(data, r) {
   let income = 0;
   let expense = 0;
   for (const t of data.transactions) {
-    if (monthOf(t.date) !== month) continue;
+    if (!inRange(t.date, r)) continue;
     if (t.type === 'income') income += t.amount;
     else expense += t.amount;
   }
-  const saved = data.deposits.filter((d) => monthOf(d.date) === month).reduce((s, d) => s + d.amount, 0);
+  const saved = data.deposits.filter((d) => inRange(d.date, r)).reduce((s, d) => s + d.amount, 0);
   return { income, expense, saved, remaining: income - expense - saved };
 }
 
+export function monthTotals(data, month) {
+  return totalsIn(data, monthRange(month));
+}
+
 /** Pengeluaran per kategori, urut dari terbesar. */
-export function spendingByCategory(data, month) {
+export function spendingByCategory(data, r) {
   const cats = categoryMap(data);
   const sums = new Map();
   for (const t of data.transactions) {
-    if (t.type !== 'expense' || monthOf(t.date) !== month) continue;
+    if (t.type !== 'expense' || !inRange(t.date, r)) continue;
     sums.set(t.categoryId, (sums.get(t.categoryId) || 0) + t.amount);
   }
   const total = [...sums.values()].reduce((a, b) => a + b, 0);
@@ -55,26 +61,45 @@ export function budgetLevel(ratio) {
   return 'ok';
 }
 
-/** Status anggaran setiap kategori pengeluaran yang punya batas. */
-export function budgetStatus(data, month) {
+/** Rentang pas satu bulan kalender? */
+export function isFullMonth(r) {
+  const m = monthOf(r.start);
+  const full = monthRange(m);
+  return r.start === full.start && r.end === full.end;
+}
+
+/**
+ * Anggaran disimpan per bulan. Untuk periode yang panjangnya bukan pas satu bulan,
+ * batasnya disesuaikan sebanding jumlah hari (dibulatkan ke ribuan).
+ */
+export function scaleBudget(monthly, r) {
+  if (!monthly) return 0;
+  if (isFullMonth(r)) return monthly;
+  const days = daysInclusive(r.start, r.end);
+  return Math.max(1000, Math.round((monthly * days) / 30 / 1000) * 1000);
+}
+
+/** Status anggaran setiap kategori pengeluaran yang punya batas, dalam rentang r. */
+export function budgetStatus(data, r) {
   const spent = new Map();
   for (const t of data.transactions) {
-    if (t.type !== 'expense' || monthOf(t.date) !== month) continue;
+    if (t.type !== 'expense' || !inRange(t.date, r)) continue;
     spent.set(t.categoryId, (spent.get(t.categoryId) || 0) + t.amount);
   }
   return data.categories
     .filter((c) => c.type === 'expense' && c.budget)
     .map((c) => {
       const s = spent.get(c.id) || 0;
-      const ratio = s / c.budget;
-      return { category: c, spent: s, budget: c.budget, left: c.budget - s, ratio, level: budgetLevel(ratio) };
+      const budget = scaleBudget(c.budget, r);
+      const ratio = s / budget;
+      return { category: c, spent: s, budget, monthly: c.budget, left: budget - s, ratio, level: budgetLevel(ratio) };
     });
 }
 
 /** Pesan lembut untuk satu baris anggaran. */
 export function budgetMessage(b) {
   const name = b.category.name.toLowerCase();
-  if (b.level === 'over') return `Lewat ${formatRupiah(-b.left)} dari rencana. Tidak apa-apa, bulan depan bisa diatur lagi.`;
+  if (b.level === 'over') return `Lewat ${formatRupiah(-b.left)} dari rencana. Tidak apa-apa, periode berikutnya bisa diatur lagi.`;
   if (b.level === 'warn') return `Tinggal ${formatRupiah(b.left)} untuk ${name}, pelan-pelan ya.`;
   if (b.spent === 0) return 'Belum terpakai sama sekali.';
   return `Masih ada ${formatRupiah(b.left)}.`;
@@ -92,32 +117,89 @@ export function averageSpending(data, categoryId, month) {
   return Math.round(total / used.length / 1000) * 1000;
 }
 
-/** Pengeluaran per hari dalam bulan. */
-export function dailyTrend(data, month, { excludeRecurring = false } = {}) {
-  const n = daysInMonth(month);
-  const days = Array.from({ length: n }, (_, i) => ({ key: i + 1, label: String(i + 1), amount: 0 }));
+/** Pengeluaran per hari sepanjang rentang. */
+export function dailyTrend(data, r, { excludeRecurring = false } = {}) {
+  const n = daysInclusive(r.start, r.end);
+  const days = Array.from({ length: n }, (_, i) => {
+    const date = addDays(r.start, i);
+    const d = Number(date.slice(8, 10));
+    return { key: date, date, label: String(d), long: formatDateShort(date, { withYear: false }), amount: 0 };
+  });
   for (const t of data.transactions) {
-    if (t.type !== 'expense' || monthOf(t.date) !== month) continue;
+    if (t.type !== 'expense' || !inRange(t.date, r)) continue;
     if (excludeRecurring && t.recurringId) continue;
-    days[Number(t.date.slice(8, 10)) - 1].amount += t.amount;
+    days[diffDays(r.start, t.date)].amount += t.amount;
   }
   return days;
 }
 
-/** Pengeluaran per minggu (Minggu 1 = tanggal 1–7, dst). */
-export function weeklyTrend(data, month, { excludeRecurring = false } = {}) {
-  const weeks = Math.ceil(daysInMonth(month) / 7);
-  const out = Array.from({ length: weeks }, (_, i) => {
-    const start = i * 7 + 1;
-    const end = Math.min(start + 6, daysInMonth(month));
-    return { key: i + 1, label: `${start}–${end}`, amount: 0 };
-  });
-  for (const t of data.transactions) {
-    if (t.type !== 'expense' || monthOf(t.date) !== month) continue;
-    if (excludeRecurring && t.recurringId) continue;
-    out[weekOfMonth(t.date) - 1].amount += t.amount;
+/** Pengeluaran per 7 hari, dihitung dari tanggal mulai rentang. */
+export function weeklyTrend(data, r, opts = {}) {
+  const days = dailyTrend(data, r, opts);
+  const out = [];
+  for (let i = 0; i < days.length; i += 7) {
+    const chunk = days.slice(i, i + 7);
+    const a = chunk[0].date;
+    const b = chunk[chunk.length - 1].date;
+    const sameMonth = a.slice(0, 7) === b.slice(0, 7);
+    out.push({
+      key: a,
+      date: a,
+      end: b,
+      label: sameMonth ? `${Number(a.slice(8))}–${Number(b.slice(8))}` : `${Number(a.slice(8))}–${formatDateShort(b, { withYear: false })}`,
+      long: `${formatDateShort(a, { withYear: false })} – ${formatDateShort(b, { withYear: false })}`,
+      amount: chunk.reduce((s, d) => s + d.amount, 0),
+    });
   }
   return out;
+}
+
+/**
+ * Laju pengeluaran untuk rentang yang sedang berjalan:
+ * sisa hari, jatah harian (sisa uang ÷ sisa hari), dan status hari ini.
+ * Mengembalikan null kalau hari ini di luar rentang.
+ */
+export function pace(data, r, today = todayISO()) {
+  if (!inRange(today, r)) return null;
+  const totals = totalsIn(data, r);
+  const daysTotal = daysInclusive(r.start, r.end);
+  const daysLeft = daysInclusive(today, r.end); // termasuk hari ini
+  const daysElapsed = daysTotal - daysLeft + 1;
+  const spentToday = data.transactions
+    .filter((t) => t.type === 'expense' && t.date === today)
+    .reduce((s, t) => s + t.amount, 0);
+  // jatah dihitung dari kondisi awal hari ini, supaya tidak "turun" setiap kali mencatat
+  const availableToday = totals.remaining + spentToday;
+  // dibulatkan ke bawah per Rp 500 supaya mudah diingat (dan tetap aman)
+  const raw = availableToday > 0 ? availableToday / daysLeft : 0;
+  const allowance = raw >= 1000 ? Math.floor(raw / 500) * 500 : Math.floor(raw);
+  const ratio = allowance > 0 ? spentToday / allowance : spentToday > 0 ? Infinity : 0;
+
+  let level = 'ok';
+  if (totals.income === 0 && totals.remaining <= 0) level = 'none';
+  else if (totals.remaining < 0 || ratio > 1) level = 'over';
+  else if (ratio >= WARN_AT) level = 'warn';
+
+  return {
+    ...totals,
+    daysTotal,
+    daysLeft,
+    daysElapsed,
+    timeRatio: daysElapsed / daysTotal,
+    spentToday,
+    allowance,
+    todayLeft: allowance - spentToday,
+    todayRatio: ratio,
+    level,
+    // jatah per hari kalau mulai besok (setelah pengeluaran hari ini)
+    allowanceTomorrow: daysLeft > 1 ? Math.max(0, Math.floor(totals.remaining / (daysLeft - 1))) : 0,
+  };
+}
+
+/** Pengeluaran per hari untuk n hari terakhir (untuk grafik kecil di beranda). */
+export function lastDays(data, n = 7, today = todayISO()) {
+  const r = { start: addDays(today, -(n - 1)), end: today };
+  return dailyTrend(data, r).map((d) => ({ ...d, label: DAYS[parseISO(d.date).getDay()].slice(0, 3) }));
 }
 
 /** Kategori diurutkan dari yang paling sering dipakai 60 hari terakhir. */
@@ -168,30 +250,31 @@ export function goalProgress(data, goal, today = todayISO()) {
 }
 
 /** Satu kalimat ringkasan yang ramah untuk dashboard. */
-export function monthInsight(data, month, today = todayISO()) {
-  const { income, expense, remaining } = monthTotals(data, month);
-  const isCurrent = month === monthOf(today);
-  const isFuture = month > monthOf(today);
+export function rangeInsight(data, r, today = todayISO()) {
+  const { income, expense, remaining } = totalsIn(data, r);
+  const word = r.kind === 'period' ? 'periode ini' : 'bulan ini';
+  const isCurrent = inRange(today, r);
+  const isFuture = r.start > today;
 
-  if (isFuture) return { tone: 'neutral', text: 'Bulan ini belum dimulai. Sampai jumpa nanti!' };
+  if (isFuture) return { tone: 'neutral', text: `${capitalize(word)} belum dimulai. Sampai jumpa nanti!` };
   if (income === 0 && expense === 0) {
     return isCurrent
-      ? { tone: 'neutral', text: 'Belum ada catatan bulan ini. Mulai dari yang kecil, misalnya sarapan tadi pagi.' }
-      : { tone: 'neutral', text: 'Tidak ada catatan di bulan ini.' };
+      ? { tone: 'neutral', text: `Belum ada catatan ${word}. Mulai dari yang kecil, misalnya sarapan tadi pagi.` }
+      : { tone: 'neutral', text: `Tidak ada catatan di ${word}.` };
   }
 
   if (isCurrent) {
-    const day = Number(today.slice(8, 10));
-    const daysLeft = daysInMonth(month) - day + 1;
+    const p = pace(data, r, today);
     if (remaining > 0) {
-      const perDay = Math.floor(remaining / daysLeft / 500) * 500;
+      const perDay = Math.floor(p.allowanceTomorrow / 500) * 500;
+      if (p.daysLeft <= 1) return { tone: 'good', text: `Hari terakhir ${word}, dan masih ada sisa. Keren! 🌿` };
       return {
         tone: 'good',
-        text: `Sisa ${daysLeft} hari lagi. Kira-kira ${formatRupiah(perDay)} per hari supaya aman sampai akhir bulan.`,
+        text: `Masih ${p.daysLeft} hari lagi. Mulai besok, kira-kira ${formatRupiah(perDay)} per hari supaya aman sampai akhir ${word.split(' ')[0]}.`,
       };
     }
     if (income === 0) {
-      return { tone: 'neutral', text: 'Belum ada pemasukan yang dicatat bulan ini. Kiriman atau gaji bisa dicatat lewat tombol +.' };
+      return { tone: 'neutral', text: `Belum ada pemasukan yang dicatat ${word}. Kiriman atau gaji bisa dicatat lewat tombol +.` };
     }
     return {
       tone: 'care',
@@ -199,14 +282,14 @@ export function monthInsight(data, month, today = todayISO()) {
     };
   }
 
-  const prev = monthTotals(data, addMonths(month, -1));
   if (remaining > 0) {
-    return { tone: 'good', text: `Bulan ini kamu menyisakan ${formatRupiah(remaining)}. Keren! 🌿` };
+    return { tone: 'good', text: `${capitalize(word.replace('ini', 'itu'))} kamu menyisakan ${formatRupiah(remaining)}. Keren! 🌿` };
   }
-  if (prev.expense && expense < prev.expense) {
-    return { tone: 'neutral', text: `Pengeluaranmu ${formatRupiah(prev.expense - expense)} lebih hemat dari bulan sebelumnya.` };
-  }
-  return { tone: 'care', text: 'Bulan yang cukup berat. Semoga bulan berikutnya lebih ringan.' };
+  return { tone: 'care', text: `${capitalize(word.replace('ini', 'itu'))} cukup berat. Semoga berikutnya lebih ringan.` };
+}
+
+function capitalize(t) {
+  return t.charAt(0).toUpperCase() + t.slice(1);
 }
 
 /**
