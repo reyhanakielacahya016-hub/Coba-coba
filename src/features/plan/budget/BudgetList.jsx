@@ -91,7 +91,9 @@ export function BudgetList() {
             }
           >
             Pasang batas bulanan untuk kategori yang sering bikin kaget.{' '}
-            {suggestions.length > 0 ? 'Saku bisa mengisinya dari rata-rata pengeluaranmu, atau ' : ''}ketuk kategori di bawah untuk mengatur sendiri.
+            {suggestions.length > 0
+              ? 'Saku bisa mengisinya dari rata-rata pengeluaranmu, atau ketuk kategori di bawah untuk mengatur sendiri.'
+              : 'Ketuk salah satu kategori di bawah untuk mulai.'}
           </EmptyState>
         </div>
       )}
@@ -137,7 +139,7 @@ export function BudgetList() {
                   </span>
                   <span className="plain-row__main">
                     <span className="plain-row__title">{c.name}</span>
-                    <span className="plain-row__sub num">Terpakai {formatRupiah(spent.get(c.id) || 0)} bulan ini</span>
+                    <span className="plain-row__sub num">Terpakai {formatRupiah(spent.get(c.id) || 0)} {range.kind === 'period' ? 'periode ini' : 'bulan ini'}</span>
                   </span>
                   <span className="plain-row__cta">
                     Atur <ChevronRight size={16} />

@@ -2,9 +2,9 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
+  gap: var(--space-3);
   flex-wrap: wrap;
-  padding: 20px;
+  padding: var(--space-5);
 }
 
 .goals-total__label {
@@ -28,8 +28,8 @@
 .goal-ideas {
   display: grid;
   justify-items: center;
-  gap: 10px;
-  padding: 0 8px 16px;
+  gap: var(--space-3);
+  padding: 0 var(--space-2) var(--space-4);
 }
 
 .goal-ideas .chip-row {
@@ -41,12 +41,12 @@
   margin: 0;
   padding: 0;
   display: grid;
-  gap: 12px;
+  gap: var(--space-3);
 }
 
 .goal {
   display: grid;
-  gap: 12px;
+  gap: var(--space-3);
 }
 
 .goal.is-done {
@@ -58,7 +58,7 @@
 .goal__head {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: var(--space-3);
 }
 
 .goal__emoji {
@@ -88,7 +88,7 @@
 .goal__progress {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: var(--space-3);
 }
 
 .goal__progress .progress {
@@ -107,7 +107,7 @@
 .goal__deadline {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: var(--space-2);
   font-size: 0.85rem;
   color: var(--ink-2);
 }
@@ -120,16 +120,16 @@
 .goal__actions {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--space-2);
   flex-wrap: wrap;
 }
 
 .goal__toggle {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
+  gap: var(--space-1);
   min-height: 40px;
-  padding: 6px 10px;
+  padding: var(--space-2) var(--space-3);
   border: 0;
   border-radius: var(--r-pill);
   background: transparent;
@@ -153,7 +153,7 @@
 .goal__deposits {
   list-style: none;
   margin: 0;
-  padding: 6px 0 0;
+  padding: var(--space-2) 0 0;
   border-top: 1px solid var(--line);
   display: grid;
   animation: fade-up 220ms var(--ease);
@@ -162,7 +162,7 @@
 .goal__deposits li {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: var(--space-3);
   font-size: 0.88rem;
   min-height: 44px;
 }
@@ -192,7 +192,7 @@
 
 .goal-deadline {
   display: grid;
-  gap: 8px;
+  gap: var(--space-2);
 }
 
 .deposit-note {
@@ -206,7 +206,7 @@
   z-index: 80;
   display: grid;
   place-items: center;
-  padding: 24px;
+  padding: var(--space-6);
   background: rgb(17 21 19 / 0.45);
   backdrop-filter: blur(3px);
   animation: sheet-fade 240ms var(--ease);
@@ -218,8 +218,8 @@
   display: grid;
   justify-items: center;
   text-align: center;
-  gap: 6px;
-  padding: 28px 24px 24px;
+  gap: var(--space-2);
+  padding: var(--space-7) var(--space-6) var(--space-6);
   border-radius: var(--r-lg);
   background: var(--surface);
   box-shadow: var(--shadow-2);
@@ -234,7 +234,7 @@
   border-radius: 30px;
   background: var(--accent-soft);
   font-size: 2.6rem;
-  margin-bottom: 8px;
+  margin-bottom: var(--space-2);
   animation: celebrate-wiggle 1.2s var(--ease) 0.3s;
 }
 
@@ -260,7 +260,7 @@
 
 .celebrate__msg {
   color: var(--ink-2);
-  margin: 6px 0 14px;
+  margin: var(--space-2) 0 var(--space-4);
 }
 
 .celebrate__confetti {

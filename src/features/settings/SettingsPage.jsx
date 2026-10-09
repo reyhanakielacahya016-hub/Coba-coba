@@ -5,6 +5,7 @@ import { useConfirm } from '../../hooks/useConfirm.jsx';
 import { useToast } from '../../hooks/useToast.jsx';
 import { useData } from '../../state/AppProvider.jsx';
 import { emptyData } from '../../state/storage.js';
+import { formatDateShort } from '../../lib/format.js';
 import { CategoryManager } from './CategoryManager.jsx';
 import { DataExportImport } from './DataExportImport.jsx';
 import { RecurringManager } from './RecurringManager.jsx';
@@ -42,6 +43,25 @@ export function SettingsPage() {
   return (
     <div className="settings">
       <PageHeader title="Pengaturan" back />
+
+      <section className="card data-summary" aria-label="Ringkasan data">
+        {[
+          ['Transaksi', data.transactions.length],
+          ['Kategori', data.categories.length],
+          ['Periode', data.periods.length],
+          ['Target', data.goals.length],
+        ].map(([label, n]) => (
+          <div key={label} className="data-summary__item">
+            <span className="data-summary__n num">{n}</span>
+            <span className="data-summary__label">{label}</span>
+          </div>
+        ))}
+        <p className="data-summary__note">
+          {data.transactions.length
+            ? `Mencatat sejak ${formatDateShort(data.transactions.reduce((m, t) => (t.date < m ? t.date : m), data.transactions[0].date))}. Semua tersimpan di perangkat ini.`
+            : 'Semua data tersimpan di perangkat ini saja, tanpa akun.'}
+        </p>
+      </section>
 
       <section className="card section" aria-labelledby="theme-title">
         <h2 id="theme-title" className="section__title">

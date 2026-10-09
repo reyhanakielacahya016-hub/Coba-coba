@@ -5,7 +5,7 @@
   bottom: calc(var(--nav-h) + 16px + env(safe-area-inset-bottom));
   display: flex;
   justify-content: center;
-  padding: 0 16px;
+  padding: 0 var(--space-4);
   z-index: 60;
   pointer-events: none;
 }
@@ -14,9 +14,9 @@
   pointer-events: auto;
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: var(--space-3);
   width: min(100%, 440px);
-  padding: 10px 8px 10px 14px;
+  padding: var(--space-3) var(--space-2) var(--space-3) var(--space-4);
   border-radius: var(--r-md);
   background: var(--toast-bg);
   color: var(--toast-ink);
@@ -50,7 +50,7 @@
   background: transparent;
   color: var(--toast-action);
   font-weight: 700;
-  padding: 10px 12px;
+  padding: var(--space-3) var(--space-3);
   border-radius: var(--r-pill);
   min-height: 40px;
 }

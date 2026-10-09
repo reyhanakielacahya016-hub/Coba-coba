@@ -93,19 +93,25 @@ svg {
   background: var(--surface);
   border-radius: var(--r-md);
   box-shadow: var(--shadow-1);
-  padding: 18px;
+  padding: var(--space-4);
+}
+
+@media (min-width: 640px) {
+  .card {
+    padding: var(--space-5);
+  }
 }
 
 .section {
   display: grid;
-  gap: 12px;
+  gap: var(--space-3);
 }
 
 .section__head {
   display: flex;
   align-items: baseline;
   justify-content: space-between;
-  gap: 12px;
+  gap: var(--space-3);
 }
 
 .section__title {
@@ -118,7 +124,7 @@ svg {
   color: var(--accent);
   font-weight: 700;
   font-size: 0.9rem;
-  padding: 8px 4px;
+  padding: var(--space-2) var(--space-1);
   min-height: 40px;
   border-radius: var(--r-xs);
 }
@@ -131,7 +137,7 @@ svg {
 .stack {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
-  gap: 16px;
+  gap: var(--space-4);
 }
 
 /* gerak yang tenang, dan dimatikan kalau pengguna minta */
@@ -164,4 +170,52 @@ svg {
     transition-duration: 1ms !important;
     scroll-behavior: auto !important;
   }
+}
+
+/* ——— Panduan singkat (saat kosong) ——— */
+.how {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.how__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: var(--space-3);
+}
+
+.how__list li {
+  display: flex;
+  gap: var(--space-3);
+  align-items: flex-start;
+  font-size: 0.9rem;
+  color: var(--ink-2);
+}
+
+.how__list strong {
+  color: var(--ink);
+}
+
+.how__icon {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 10px;
+  background: var(--accent-soft);
+  color: var(--accent-soft-ink);
+  flex: none;
+}
+
+.empty__action a.btn {
+  text-decoration: none;
+}
+
+/* ikon di dalam tombol/tautan tidak boleh ikut menyusut */
+button svg,
+a svg,
+.btn svg {
+  flex-shrink: 0;
 }

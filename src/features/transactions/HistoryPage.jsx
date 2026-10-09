@@ -1,4 +1,4 @@
-import { Plus, Search, SlidersHorizontal, X } from 'lucide-react';
+import { Plus, Search, SlidersHorizontal, Undo2, Upload, X } from 'lucide-react';
 import { useDeferredValue, useMemo, useState } from 'react';
 import { PageHeader, SettingsLink } from '../../components/layout/AppShell.jsx';
 import { Button } from '../../components/ui/Button.jsx';
@@ -119,28 +119,77 @@ export function HistoryPage() {
       </div>
 
       {list.length > 0 && (
-        <p className="history__summary" aria-live="polite">
-          <span>{list.length} transaksi</span>
-          {totals.expense > 0 && <span className="num">keluar {formatRupiah(totals.expense)}</span>}
-          {totals.income > 0 && <span className="num is-income">masuk {formatRupiah(totals.income)}</span>}
-        </p>
+        <section className="history__summary card" aria-live="polite" aria-label="Ringkasan hasil">
+          <div>
+            <span className="hs__label">Transaksi</span>
+            <span className="hs__value num">{list.length}</span>
+          </div>
+          <div>
+            <span className="hs__label">Keluar</span>
+            <span className="hs__value num">{formatRupiah(totals.expense)}</span>
+          </div>
+          <div>
+            <span className="hs__label">Masuk</span>
+            <span className="hs__value hs__value--in num">{formatRupiah(totals.income)}</span>
+          </div>
+        </section>
       )}
 
       {data.transactions.length === 0 ? (
-        <EmptyState
-          emoji="🗒️"
-          title="Riwayatmu masih kosong"
-          action={
-            <Button onClick={() => openQuickAdd()}>
-              <Plus size={18} /> Catat transaksi
-            </Button>
-          }
-        >
-          Setiap catatan akan muncul di sini, dikelompokkan per hari.
-        </EmptyState>
+        <>
+          <div className="card">
+            <EmptyState
+              illustration="notes"
+              title="Riwayatmu masih kosong"
+              action={
+                <Button onClick={() => openQuickAdd()}>
+                  <Plus size={18} /> Catat transaksi
+                </Button>
+              }
+              secondary={
+                <a className="btn btn--ghost btn--md" href="#/pengaturan">
+                  <Upload size={18} /> Impor dari CSV
+                </a>
+              }
+            >
+              Setiap catatan muncul di sini, dikelompokkan per hari lengkap dengan total hariannya.
+            </EmptyState>
+          </div>
+          <section className="card how" aria-labelledby="how-title">
+            <h2 id="how-title" className="section__title">
+              Yang bisa kamu lakukan di sini
+            </h2>
+            <ul className="how__list">
+              <li>
+                <span className="how__icon" aria-hidden="true">
+                  <Search size={16} />
+                </span>
+                <span>
+                  <strong>Cari</strong> catatan, kategori, atau nominal, misalnya “25.000”.
+                </span>
+              </li>
+              <li>
+                <span className="how__icon" aria-hidden="true">
+                  <SlidersHorizontal size={16} />
+                </span>
+                <span>
+                  <strong>Saring</strong> per periode, rentang tanggal, kategori, atau jenis.
+                </span>
+              </li>
+              <li>
+                <span className="how__icon" aria-hidden="true">
+                  <Undo2 size={16} />
+                </span>
+                <span>
+                  <strong>Ketuk catatan</strong> untuk mengubah atau menghapus. Salah hapus? Tekan “Urungkan”.
+                </span>
+              </li>
+            </ul>
+          </section>
+        </>
       ) : list.length === 0 ? (
         <EmptyState
-          emoji="🔍"
+          illustration="search"
           title="Tidak ada yang cocok"
           action={
             anyFilter && (

@@ -6,9 +6,9 @@ import { sakuPwa } from './pwa/vite-plugin-pwa.js';
 // Untuk hosting di root domain (mis. Vercel/Netlify), jalankan build dengan BASE_PATH=/
 const BASE = process.env.BASE_PATH || '/Coba-coba/';
 
-export default defineConfig(({ command }) => ({
+export default defineConfig(({ command, isPreview }) => ({
   plugins: [react(), sakuPwa()],
-  base: command === 'build' ? BASE : '/',
+  base: command === 'build' || isPreview ? BASE : '/',
   test: {
     environment: 'node',
   },

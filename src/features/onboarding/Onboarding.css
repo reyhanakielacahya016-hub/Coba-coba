@@ -16,13 +16,13 @@
 
 .onb__body {
   flex: 1;
-  padding: 24px 0;
+  padding: var(--space-6) 0;
   animation: fade-up 360ms var(--ease);
 }
 
 .onb__step {
   display: grid;
-  gap: 16px;
+  gap: var(--space-4);
 }
 
 .onb__title {
@@ -45,7 +45,7 @@
   display: grid;
   place-items: center;
   height: 180px;
-  margin-bottom: 8px;
+  margin-bottom: var(--space-2);
   border-radius: var(--r-lg);
   background:
     radial-gradient(circle at 30% 30%, var(--accent-soft), transparent 60%),
@@ -77,14 +77,14 @@
 .onb__features {
   list-style: none;
   padding: 0;
-  margin: 8px 0 0;
+  margin: var(--space-2) 0 0;
   display: grid;
-  gap: 14px;
+  gap: var(--space-4);
 }
 
 .onb__features li {
   display: flex;
-  gap: 14px;
+  gap: var(--space-4);
   align-items: flex-start;
   color: var(--ink-2);
 }
@@ -106,8 +106,8 @@
 
 .onb__group {
   display: grid;
-  gap: 10px;
-  margin-top: 6px;
+  gap: var(--space-3);
+  margin-top: var(--space-2);
 }
 
 .onb__subtitle {
@@ -118,7 +118,7 @@
 .inline-form {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: var(--space-2);
   align-items: center;
 }
 
@@ -129,16 +129,16 @@
 
 .onb__choices {
   display: grid;
-  gap: 12px;
-  margin-top: 8px;
+  gap: var(--space-3);
+  margin-top: var(--space-2);
 }
 
 .onb__choice {
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: var(--space-4);
   text-align: left;
-  padding: 18px;
+  padding: var(--space-5);
   border-radius: var(--r-md);
   border: 1.5px solid var(--line);
   background: var(--surface);
@@ -201,13 +201,13 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
+  gap: var(--space-3);
   min-height: 56px;
 }
 
 .onb__dots {
   display: flex;
-  gap: 6px;
+  gap: var(--space-2);
 }
 
 .onb__dot {
@@ -225,12 +225,12 @@
 
 .onb__nav {
   display: flex;
-  gap: 8px;
+  gap: var(--space-2);
 }
 
 .onb__restore {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: var(--space-2);
   justify-self: center;
 }

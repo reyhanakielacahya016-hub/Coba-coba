@@ -105,10 +105,10 @@ export function buildSeedData(today = todayISO()) {
   const mudik = { id: uid(), name: 'Mudik lebaran', emoji: '🚆', target: 1200000, deadline: addDays(today, 150), createdAt: Date.now(), achievedAt: null };
   data.goals = [laptop, mudik];
   const dep = (goal, amount, date, note = '') => data.deposits.push({ id: uid(), goalId: goal.id, amount, date, note });
-  dep(laptop, 500000, `${prevMonth}-02`, 'Sisihkan dari kiriman');
-  dep(laptop, 250000, `${prevMonth}-19`, 'Dari kerja sampingan');
-  dep(mudik, 200000, `${prevMonth}-05`);
-  dep(mudik, 150000, `${prevMonth}-25`);
+  dep(laptop, 300000, `${prevMonth}-02`, 'Sisihkan dari kiriman');
+  dep(laptop, 150000, `${prevMonth}-19`, 'Dari kerja sampingan');
+  dep(mudik, 100000, `${prevMonth}-05`);
+  dep(mudik, 100000, `${prevMonth}-25`);
   dep(laptop, 300000, `${thisMonth}-02` <= today ? `${thisMonth}-02` : today, 'Sisihkan dari kiriman');
 
   // periode pemasukan: dari kiriman tanggal 1 sampai akhir bulan

@@ -77,7 +77,15 @@ export function DashboardPage() {
 
       <div className="dash__grid">
         <div className="dash__col dash__col--main">
-          <PeriodHero range={range} totals={totals} pace={pace} insight={insight} />
+          <PeriodHero
+            range={range}
+            totals={totals}
+            pace={pace}
+            insight={insight}
+            hasPeriods={data.periods.length > 0}
+            onAddIncome={() => openQuickAdd({ type: 'income' })}
+            onNewPeriod={() => openPeriodForm()}
+          />
 
           <section className="summary" aria-label="Ringkasan">
             <SummaryTile icon={<ArrowDownLeft size={18} />} label="Pemasukan" value={totals.income} tone="income" />
@@ -85,8 +93,8 @@ export function DashboardPage() {
             <SummaryTile icon={<PiggyBank size={18} />} label="Ditabung" value={totals.saved} tone="saved" />
           </section>
 
-          {pace && <TodayCard pace={pace} onAdd={() => openQuickAdd()} />}
-          {!hasRunningPeriod && <PeriodCta />}
+          {pace && pace.level !== 'none' && <TodayCard pace={pace} onAdd={() => openQuickAdd()} />}
+          {!hasRunningPeriod && totals.income + totals.expense > 0 && <PeriodCta />}
           <WeekChart allowance={pace?.allowance ?? 0} />
         </div>
 

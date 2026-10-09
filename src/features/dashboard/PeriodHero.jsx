@@ -1,4 +1,5 @@
-import { AlertTriangle, CalendarClock, CheckCircle2, CircleDashed, Wallet } from 'lucide-react';
+import { AlertTriangle, ArrowDownLeft, CalendarClock, CalendarPlus, CheckCircle2, CircleDashed, Wallet } from 'lucide-react';
+import { Button } from '../../components/ui/Button.jsx';
 import { AnimatedRupiah } from '../../components/ui/AnimatedNumber.jsx';
 import { formatRupiah } from '../../lib/format.js';
 
@@ -13,7 +14,7 @@ export const LEVEL = {
  * Kartu utama beranda. Saat periode berjalan: sisa uang, jatah harian, sisa hari,
  * dan perbandingan "waktu berjalan" vs "uang terpakai". Saat periode lain: ringkasan.
  */
-export function PeriodHero({ range, totals, pace, insight }) {
+export function PeriodHero({ range, totals, pace, insight, onAddIncome, onNewPeriod, hasPeriods }) {
   const negative = totals.remaining < 0;
   const word = range.kind === 'period' ? 'periode' : 'bulan';
   const used = totals.income ? Math.min(1, (totals.expense + totals.saved) / totals.income) : 0;
@@ -36,7 +37,41 @@ export function PeriodHero({ range, totals, pace, insight }) {
 
       <AnimatedRupiah value={totals.remaining} className="hero__amount" />
 
-      {pace ? (
+      {totals.income === 0 && totals.expense === 0 && range.status !== 'upcoming' ? (
+        <div className="hero__start">
+          <p className="hero__start-title">Mulai dari sini 👇</p>
+          <ol className="hero__steps">
+            <li>
+              <span className="hero__step-n">1</span>
+              <span>
+                <strong>Catat pemasukan</strong> — kiriman, gaji, atau beasiswa.
+              </span>
+            </li>
+            <li>
+              <span className="hero__step-n">2</span>
+              <span>
+                <strong>Tentukan periodenya</strong> — sampai kapan uang itu harus cukup.
+              </span>
+            </li>
+            <li>
+              <span className="hero__step-n">3</span>
+              <span>
+                <strong>Lihat jatah harianmu</strong> — Saku menghitungnya otomatis.
+              </span>
+            </li>
+          </ol>
+          <div className="hero__start-actions">
+            <Button onClick={onAddIncome}>
+              <ArrowDownLeft size={18} /> Catat pemasukan
+            </Button>
+            {!hasPeriods && (
+              <Button variant="ghost" onClick={onNewPeriod}>
+                <CalendarPlus size={18} /> Buat periode saja
+              </Button>
+            )}
+          </div>
+        </div>
+      ) : pace ? (
         <div className="hero__stats">
           <div className="hero__stat hero__stat--main">
             <span className="hero__stat-label">Jatah harian</span>
@@ -94,7 +129,7 @@ export function PeriodHero({ range, totals, pace, insight }) {
         </div>
       )}
 
-      <p className={`hero__insight tone-${insight.tone}`}>{insight.text}</p>
+      {!(totals.income === 0 && totals.expense === 0) && <p className={`hero__insight tone-${insight.tone}`}>{insight.text}</p>}
     </section>
   );
 }

@@ -18,6 +18,7 @@ export function Calendar({ value, onSelect, min, max, rangeStart, rangeEnd, auto
   const [view, setView] = useState(monthOf(initial));
   const [focusDate, setFocusDate] = useState(initial);
   const [dir, setDir] = useState(0); // arah animasi saat ganti bulan
+  const [hover, setHover] = useState(null); // pratinjau rentang saat memilih tanggal akhir
   const gridRef = useRef(null);
   const uid = useId();
   const wantFocus = useRef(autoFocus);
@@ -57,8 +58,12 @@ export function Calendar({ value, onSelect, min, max, rangeStart, rangeEnd, auto
   // potong baris terakhir kalau seluruhnya bulan depan
   const rows = cells.slice(35).every((d) => monthOf(d) !== view) ? cells.slice(0, 35) : cells;
 
-  const lo = rangeStart && rangeEnd ? (rangeStart < rangeEnd ? rangeStart : rangeEnd) : null;
-  const hi = rangeStart && rangeEnd ? (rangeStart < rangeEnd ? rangeEnd : rangeStart) : null;
+  // sedang memilih tanggal AKHIR bila ada rangeStart dan nilai ini bukan tanggal mulainya
+  const pickingEnd = Boolean(rangeStart) && value !== rangeStart;
+  const previewEnd = pickingEnd && hover && hover >= rangeStart ? hover : null;
+  const endForBand = previewEnd ?? rangeEnd ?? (rangeStart ? rangeStart : null);
+  const lo = rangeStart && endForBand ? (rangeStart < endForBand ? rangeStart : endForBand) : null;
+  const hi = rangeStart && endForBand ? (rangeStart < endForBand ? endForBand : rangeStart) : null;
 
   const moveFocus = (d) => {
     wantFocus.current = true;
@@ -152,6 +157,7 @@ export function Calendar({ value, onSelect, min, max, rangeStart, rangeEnd, auto
         role="grid"
         aria-label={`${MONTHS[vm - 1]} ${vy}`}
         onKeyDown={onKeyDown}
+        onMouseLeave={() => setHover(null)}
       >
         {Array.from({ length: rows.length / 7 }, (_, r) => (
           <div key={r} role="row" className="cal__row">
@@ -165,6 +171,7 @@ export function Calendar({ value, onSelect, min, max, rangeStart, rangeEnd, auto
                 d === today && 'is-today',
                 isSel && 'is-selected',
                 inRange && 'in-range',
+                previewEnd && inRange && 'is-preview',
                 d === lo && 'range-start',
                 d === hi && 'range-end',
                 weekdayMon(d) === 6 && 'is-sunday',
@@ -182,7 +189,11 @@ export function Calendar({ value, onSelect, min, max, rangeStart, rangeEnd, auto
                     aria-label={`${formatDateLong(d)}${d === today ? ', hari ini' : ''}`}
                     aria-current={d === today ? 'date' : undefined}
                     onClick={() => onSelect(d)}
-                    onFocus={() => setFocusDate(d)}
+                    onFocus={() => {
+                      setFocusDate(d);
+                      if (pickingEnd) setHover(d);
+                    }}
+                    onMouseEnter={() => pickingEnd && setHover(d)}
                   >
                     {Number(d.slice(8, 10))}
                   </button>

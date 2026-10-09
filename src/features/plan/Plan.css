@@ -1,6 +1,6 @@
 .plan {
   display: grid;
-  gap: 16px;
+  gap: var(--space-4);
   max-width: 760px;
 }
 
@@ -19,14 +19,14 @@
 .plan__subtitle {
   font-size: 1rem;
   color: var(--ink-2);
-  padding: 0 4px;
+  padding: 0 var(--space-1);
 }
 
 /* ——— Anggaran ——— */
 .budget-total {
   display: grid;
-  gap: 10px;
-  padding: 20px;
+  gap: var(--space-3);
+  padding: var(--space-5);
 }
 
 .budget-total__label {
@@ -38,7 +38,7 @@
   display: flex;
   flex-wrap: wrap;
   align-items: baseline;
-  gap: 4px;
+  gap: var(--space-1);
 }
 
 .budget-total__used {
@@ -57,12 +57,12 @@
   margin: 0;
   padding: 0;
   display: grid;
-  gap: 10px;
+  gap: var(--space-3);
 }
 
 .budget-row {
   display: grid;
-  gap: 10px;
+  gap: var(--space-3);
   width: 100%;
   border: 0;
   text-align: left;
@@ -82,7 +82,7 @@
 .budget-row__top {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: var(--space-3);
 }
 
 .budget-row__emoji {
@@ -142,7 +142,7 @@
 .badge {
   font-size: 0.72rem;
   font-weight: 700;
-  padding: 3px 9px;
+  padding: 3px var(--space-2);
   border-radius: var(--r-pill);
   white-space: nowrap;
 }
@@ -165,17 +165,17 @@
 .plain-list {
   list-style: none;
   margin: 0;
-  padding: 6px;
+  padding: var(--space-2);
   display: grid;
 }
 
 .plain-row {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: var(--space-3);
   width: 100%;
   min-height: 60px;
-  padding: 8px 10px;
+  padding: var(--space-2) var(--space-3);
   border: 0;
   border-radius: var(--r-sm);
   background: transparent;

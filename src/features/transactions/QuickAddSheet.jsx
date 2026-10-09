@@ -56,7 +56,8 @@ export function QuickAddSheet() {
       const t = quickAdd.edit;
       setForm({ ...emptyForm(), type: t.type, amount: t.amount, categoryId: t.categoryId, date: t.date, note: t.note, repeat: Boolean(t.recurringId) });
     } else {
-      setForm(emptyForm(quickAdd));
+      const f = emptyForm(quickAdd);
+      setForm(f.type === 'income' ? { ...f, newPeriod: !periodForDate(data, f.date) } : f);
     }
   }, [quickAdd]);
 

@@ -32,7 +32,8 @@ export function StatsPage() {
 
   const byCat = useMemo(() => spendingByCategory(data, range), [data, range]);
   const totals = useMemo(() => totalsIn(data, range), [data, range]);
-  const daily = useMemo(() => dailyTrend(data, elapsed), [data, elapsed]);
+  // fakta harian tanpa pengeluaran rutin (mis. kos), supaya "hari paling boros" bermakna
+  const daily = useMemo(() => dailyTrend(data, elapsed, { excludeRecurring: true }), [data, elapsed]);
   const prevRange = useMemo(() => previousRange(data, range, today), [data, range, today]);
 
   const hasRecurring = useMemo(
@@ -180,7 +181,7 @@ export function StatsPage() {
                   <Flame size={18} />
                 </span>
                 <div>
-                  <p className="fact__label">Hari paling boros</p>
+                  <p className="fact__label">Hari paling boros{hasRecurring ? ' (tanpa rutin)' : ''}</p>
                   <p className="fact__value num">{formatRupiah(facts.top.amount)}</p>
                   <p className="fact__sub">{formatDateLong(facts.top.date)}</p>
                 </div>

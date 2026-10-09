@@ -58,7 +58,9 @@ export default function App() {
   return (
     <>
       <AppShell route={route}>
-        <Page key={section} route={route} />
+        <div className="page" key={section}>
+          <Page route={route} />
+        </div>
       </AppShell>
       <QuickAddSheet />
       <ScopeSheet />

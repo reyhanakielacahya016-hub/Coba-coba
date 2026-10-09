@@ -26,6 +26,7 @@ export function WeekChart({ allowance }) {
         <span className="muted">{a.date === today ? 'Hari ini' : a.long}</span> <strong className="num">{formatRupiah(a.amount)}</strong>
       </p>
       <div className="week__bars" role="group" aria-label="Pengeluaran per hari">
+        {total === 0 && <p className="week__empty">Belum ada pengeluaran 7 hari terakhir. Dompet aman! 🌿</p>}
         {allowance > 0 && (
           <span className="week__line" style={{ bottom: `calc(22px + (100% - 30px) * ${allowance / max})` }}>
             <span>jatah {formatShort(allowance)}</span>

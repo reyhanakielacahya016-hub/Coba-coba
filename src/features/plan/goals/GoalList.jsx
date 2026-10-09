@@ -43,7 +43,7 @@ export function GoalList() {
       <div className="stack">
         <div className="card">
           <EmptyState
-            emoji="🐷"
+            illustration="piggy"
             title="Belum ada target tabungan"
             action={
               <Button onClick={() => setForm({ preset: {} })}>
@@ -65,6 +65,31 @@ export function GoalList() {
             </div>
           </div>
         </div>
+        <section className="card how" aria-labelledby="save-how">
+          <h2 id="save-how" className="section__title">
+            Tips menabung ala anak kos
+          </h2>
+          <ul className="how__list">
+            <li>
+              <span className="how__icon" aria-hidden="true">1</span>
+              <span>
+                <strong>Sisihkan di awal</strong>, begitu kiriman masuk. Yang tersisa baru dipakai.
+              </span>
+            </li>
+            <li>
+              <span className="how__icon" aria-hidden="true">2</span>
+              <span>
+                <strong>Pakai tenggat</strong> supaya Saku menghitung setoran per minggu.
+              </span>
+            </li>
+            <li>
+              <span className="how__icon" aria-hidden="true">3</span>
+              <span>
+                <strong>Kecil tapi rutin</strong> lebih kuat daripada besar tapi jarang.
+              </span>
+            </li>
+          </ul>
+        </section>
         <GoalFormSheet state={form} onClose={() => setForm(null)} />
       </div>
     );

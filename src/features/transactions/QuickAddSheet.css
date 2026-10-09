@@ -1,14 +1,13 @@
 .qa {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
-  gap: 16px;
+  gap: var(--space-4);
 }
 
 .qa__quick {
   display: flex;
-  gap: 6px;
+  gap: var(--space-2);
   overflow-x: auto;
-  margin-top: -6px;
   scrollbar-width: none;
 }
 
@@ -43,7 +42,7 @@
 
 .qa__legend {
   padding: 0;
-  margin-bottom: 8px;
+  margin-bottom: var(--space-2);
   font-size: 0.85rem;
   font-weight: 600;
   color: var(--ink-2);
@@ -55,8 +54,7 @@
 }
 
 .qa__hint {
-  margin-top: -6px;
-  padding: 10px 14px;
+  padding: var(--space-3) var(--space-4);
   border-radius: var(--r-sm);
   background: var(--warn-soft);
   color: var(--warn-ink);
@@ -68,8 +66,8 @@
 .qa__details {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
-  gap: 10px;
-  padding-top: 4px;
+  gap: var(--space-3);
+  padding-top: var(--space-1);
 }
 
 .qa__dates {

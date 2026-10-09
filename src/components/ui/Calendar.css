@@ -184,6 +184,10 @@
   display: none;
 }
 
+.cal__row > div:has(.is-preview)::before {
+  opacity: 0.6;
+}
+
 .cal__day.in-range:not(.is-selected) {
   color: var(--accent-soft-ink);
 }

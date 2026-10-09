@@ -28,8 +28,8 @@
   flex-basis: 100%;
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(44px, 1fr));
-  gap: 4px;
-  padding: 8px;
+  gap: var(--space-1);
+  padding: var(--space-2);
   border-radius: var(--r-sm);
   background: var(--surface-2);
   animation: fade-up 200ms var(--ease);
