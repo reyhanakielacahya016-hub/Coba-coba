@@ -5,6 +5,7 @@ import { useConfirm } from '../../hooks/useConfirm.jsx';
 import { useToast } from '../../hooks/useToast.jsx';
 import { useData } from '../../state/AppProvider.jsx';
 import { emptyData } from '../../state/storage.js';
+import { CategoryManager } from './CategoryManager.jsx';
 import './Settings.css';
 
 const THEMES = [
@@ -37,7 +38,7 @@ export function SettingsPage() {
 
   return (
     <div className="settings">
-      <PageHeader title="Pengaturan" />
+      <PageHeader title="Pengaturan" back />
 
       <section className="card section" aria-labelledby="theme-title">
         <h2 id="theme-title" className="section__title">
@@ -59,6 +60,8 @@ export function SettingsPage() {
           ))}
         </div>
       </section>
+
+      <CategoryManager />
 
       <section className="card section" aria-labelledby="danger-title">
         <h2 id="danger-title" className="section__title">

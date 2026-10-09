@@ -68,3 +68,39 @@
   flex-wrap: wrap;
   gap: 8px;
 }
+
+/* ——— Kategori ——— */
+.cat-list {
+  list-style: none;
+  margin: 0 -8px;
+  padding: 0;
+  display: grid;
+}
+
+.cat-lock {
+  display: inline-block;
+  margin-left: 6px;
+  color: var(--ink-3);
+  vertical-align: -1px;
+}
+
+.cat-edit {
+  color: var(--ink-3);
+  flex: none;
+}
+
+.cat-suggest {
+  display: grid;
+  gap: 8px;
+  padding-top: 14px;
+  border-top: 1px dashed var(--line);
+}
+
+.cat-suggest__title {
+  font-weight: 700;
+}
+
+.cat-suggest__sub {
+  font-size: 0.85rem;
+  margin-top: -6px;
+}

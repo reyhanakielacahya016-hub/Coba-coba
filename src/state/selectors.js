@@ -80,6 +80,18 @@ export function budgetMessage(b) {
   return `Masih ada ${formatRupiah(b.left)}.`;
 }
 
+/** Rata-rata pengeluaran kategori pada 3 bulan sebelum `month` (hanya bulan yang ada datanya). */
+export function averageSpending(data, categoryId, month) {
+  const months = [1, 2, 3].map((n) => addMonths(month, -n));
+  const active = new Set(data.transactions.map((t) => monthOf(t.date)));
+  const used = months.filter((m) => active.has(m));
+  if (!used.length) return 0;
+  const total = data.transactions
+    .filter((t) => t.categoryId === categoryId && t.type === 'expense' && used.includes(monthOf(t.date)))
+    .reduce((s, t) => s + t.amount, 0);
+  return Math.round(total / used.length / 1000) * 1000;
+}
+
 /** Pengeluaran per hari dalam bulan. */
 export function dailyTrend(data, month) {
   const n = daysInMonth(month);

@@ -1,4 +1,4 @@
-import { BarChart3, Home, ListOrdered, Plus, Settings, Target } from 'lucide-react';
+import { ArrowLeft, BarChart3, Home, ListOrdered, Plus, Settings, Target } from 'lucide-react';
 import { useEffect } from 'react';
 import { useUi } from '../../state/AppProvider.jsx';
 import { Logo } from './Logo.jsx';
@@ -88,9 +88,14 @@ export function AppShell({ route, children }) {
 }
 
 /** Kepala halaman: judul besar + aksi di kanan. */
-export function PageHeader({ eyebrow, title, actions }) {
+export function PageHeader({ eyebrow, title, actions, back = false }) {
   return (
     <header className="page-head">
+      {back && (
+        <a href="#/" className="icon-btn page-head__back" aria-label="Kembali ke beranda" title="Kembali">
+          <ArrowLeft size={22} />
+        </a>
+      )}
       <div className="page-head__text">
         {eyebrow && <p className="page-head__eyebrow">{eyebrow}</p>}
         <h1 className="page-head__title">{title}</h1>

@@ -43,6 +43,16 @@
   min-height: 48px;
 }
 
+.page-head__text {
+  flex: 1;
+  min-width: 0;
+}
+
+.page-head__back {
+  margin-left: -10px;
+  color: var(--ink);
+}
+
 .page-head__eyebrow {
   font-size: 0.82rem;
   font-weight: 600;
@@ -161,7 +171,8 @@
 
 @media (min-width: 900px) {
   .bottom-nav,
-  .shell .settings-link {
+  .shell .settings-link,
+  .shell .page-head__back {
     display: none;
   }
 
