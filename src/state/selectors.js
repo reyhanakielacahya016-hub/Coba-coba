@@ -11,6 +11,12 @@ export function categoryMap(data) {
   return new Map(data.categories.map((c) => [c.id, c]));
 }
 
+/** Urutan tampilan kategori: pengeluaran dulu, "Lainnya" di akhir masing-masing. */
+export function sortCategories(list) {
+  const rank = (c) => (c.type === 'income' ? 2 : 0) + (c.locked ? 1 : 0);
+  return list.map((c, i) => ({ c, i })).sort((a, b) => rank(a.c) - rank(b.c) || a.i - b.i).map((x) => x.c);
+}
+
 export function txInMonth(data, month) {
   return data.transactions.filter((t) => monthOf(t.date) === month);
 }
@@ -187,6 +193,47 @@ export function monthInsight(data, month, today = todayISO()) {
     return { tone: 'neutral', text: `Pengeluaranmu ${formatRupiah(prev.expense - expense)} lebih hemat dari bulan sebelumnya.` };
   }
   return { tone: 'care', text: 'Bulan yang cukup berat. Semoga bulan berikutnya lebih ringan.' };
+}
+
+/**
+ * Saring transaksi untuk halaman Riwayat.
+ * filter: { q, type: 'all'|'expense'|'income', categoryIds: string[], from, to }
+ */
+export function filterTransactions(data, filter) {
+  const cats = categoryMap(data);
+  const q = (filter.q || '').trim().toLowerCase();
+  // "25.000" atau "25000" dicari sebagai nominal
+  const qNumber = /^[\d.\s]+$/.test(q) ? q.replace(/[.\s]/g, '') : '';
+  const catSet = filter.categoryIds?.length ? new Set(filter.categoryIds) : null;
+  return data.transactions
+    .filter((t) => {
+      if (filter.type && filter.type !== 'all' && t.type !== filter.type) return false;
+      if (catSet && !catSet.has(t.categoryId)) return false;
+      if (filter.from && t.date < filter.from) return false;
+      if (filter.to && t.date > filter.to) return false;
+      if (q) {
+        const name = cats.get(t.categoryId)?.name.toLowerCase() ?? '';
+        const hit = t.note.toLowerCase().includes(q) || name.includes(q) || (qNumber && String(t.amount).includes(qNumber));
+        if (!hit) return false;
+      }
+      return true;
+    })
+    .sort((a, b) => b.date.localeCompare(a.date) || b.createdAt - a.createdAt);
+}
+
+/** Kelompokkan transaksi (sudah terurut) per tanggal. */
+export function groupByDay(list) {
+  const groups = [];
+  let current = null;
+  for (const t of list) {
+    if (!current || current.date !== t.date) {
+      current = { date: t.date, items: [], expense: 0, income: 0 };
+      groups.push(current);
+    }
+    current.items.push(t);
+    current[t.type] += t.amount;
+  }
+  return groups;
 }
 
 export function isCurrentMonth(month) {

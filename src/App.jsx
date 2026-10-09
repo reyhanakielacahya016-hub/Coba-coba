@@ -6,6 +6,8 @@ import { DashboardPage } from './features/dashboard/DashboardPage.jsx';
 import { Onboarding } from './features/onboarding/Onboarding.jsx';
 import { SettingsPage } from './features/settings/SettingsPage.jsx';
 import { EmptyState } from './components/ui/EmptyState.jsx';
+import { HistoryPage } from './features/transactions/HistoryPage.jsx';
+import { QuickAddSheet } from './features/transactions/QuickAddSheet.jsx';
 
 function ComingSoon() {
   return <EmptyState emoji="🛠️" title="Sedang disiapkan">Halaman ini akan hadir di tahap berikutnya.</EmptyState>;
@@ -13,7 +15,7 @@ function ComingSoon() {
 
 const PAGES = {
   '': DashboardPage,
-  riwayat: ComingSoon,
+  riwayat: HistoryPage,
   rencana: ComingSoon,
   statistik: ComingSoon,
   pengaturan: SettingsPage,
@@ -30,8 +32,11 @@ export default function App() {
   const Page = PAGES[section] ?? DashboardPage;
 
   return (
-    <AppShell route={route}>
-      <Page key={section} route={route} />
-    </AppShell>
+    <>
+      <AppShell route={route}>
+        <Page key={section} route={route} />
+      </AppShell>
+      <QuickAddSheet />
+    </>
   );
 }

@@ -65,6 +65,7 @@
 .sheet__body {
   padding: 8px 20px 20px;
   overflow-y: auto;
+  overflow-x: hidden;
   overscroll-behavior: contain;
 }
 
