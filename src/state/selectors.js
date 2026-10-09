@@ -93,18 +93,19 @@ export function averageSpending(data, categoryId, month) {
 }
 
 /** Pengeluaran per hari dalam bulan. */
-export function dailyTrend(data, month) {
+export function dailyTrend(data, month, { excludeRecurring = false } = {}) {
   const n = daysInMonth(month);
   const days = Array.from({ length: n }, (_, i) => ({ key: i + 1, label: String(i + 1), amount: 0 }));
   for (const t of data.transactions) {
     if (t.type !== 'expense' || monthOf(t.date) !== month) continue;
+    if (excludeRecurring && t.recurringId) continue;
     days[Number(t.date.slice(8, 10)) - 1].amount += t.amount;
   }
   return days;
 }
 
 /** Pengeluaran per minggu (Minggu 1 = tanggal 1–7, dst). */
-export function weeklyTrend(data, month) {
+export function weeklyTrend(data, month, { excludeRecurring = false } = {}) {
   const weeks = Math.ceil(daysInMonth(month) / 7);
   const out = Array.from({ length: weeks }, (_, i) => {
     const start = i * 7 + 1;
@@ -113,6 +114,7 @@ export function weeklyTrend(data, month) {
   });
   for (const t of data.transactions) {
     if (t.type !== 'expense' || monthOf(t.date) !== month) continue;
+    if (excludeRecurring && t.recurringId) continue;
     out[weekOfMonth(t.date) - 1].amount += t.amount;
   }
   return out;

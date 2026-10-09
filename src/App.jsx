@@ -8,6 +8,7 @@ import { SettingsPage } from './features/settings/SettingsPage.jsx';
 import { EmptyState } from './components/ui/EmptyState.jsx';
 import { HistoryPage } from './features/transactions/HistoryPage.jsx';
 import { PlanPage } from './features/plan/PlanPage.jsx';
+import { StatsPage } from './features/stats/StatsPage.jsx';
 import { QuickAddSheet } from './features/transactions/QuickAddSheet.jsx';
 
 function ComingSoon() {
@@ -18,7 +19,7 @@ const PAGES = {
   '': DashboardPage,
   riwayat: HistoryPage,
   rencana: PlanPage,
-  statistik: ComingSoon,
+  statistik: StatsPage,
   pengaturan: SettingsPage,
 };
 
