@@ -6,6 +6,8 @@ import { useToast } from '../../hooks/useToast.jsx';
 import { useData } from '../../state/AppProvider.jsx';
 import { emptyData } from '../../state/storage.js';
 import { CategoryManager } from './CategoryManager.jsx';
+import { DataExportImport } from './DataExportImport.jsx';
+import { RecurringManager } from './RecurringManager.jsx';
 import './Settings.css';
 
 const THEMES = [
@@ -63,6 +65,10 @@ export function SettingsPage() {
 
       <CategoryManager />
 
+      <RecurringManager />
+
+      <DataExportImport />
+
       <section className="card section" aria-labelledby="danger-title">
         <h2 id="danger-title" className="section__title">
           Mulai ulang
@@ -74,6 +80,8 @@ export function SettingsPage() {
           </Button>
         </div>
       </section>
+
+      <p className="settings-foot">Saku v1.0 · Dibuat dengan 💚 untuk anak kos · Tanpa akun, tanpa server</p>
     </div>
   );
 }

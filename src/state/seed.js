@@ -106,6 +106,6 @@ export function buildSeedData(today = todayISO()) {
   dep(mudik, 150000, `${prevMonth}-25`);
   dep(laptop, 300000, `${thisMonth}-02` <= today ? `${thisMonth}-02` : today, 'Sisihkan dari kiriman');
 
-  data.settings = { theme: 'system', onboarded: true };
+  data.settings = { theme: 'system', onboarded: true, lastBackup: null };
   return applyRecurring(data, today);
 }

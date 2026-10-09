@@ -26,7 +26,7 @@ export function Sheet({ open, onClose, title, description, children, footer, siz
       }, 200);
       return () => clearTimeout(t);
     }
-  }, [open]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [open]);
 
   useEffect(() => {
     const el = ref.current;

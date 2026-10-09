@@ -38,7 +38,7 @@ export function FilterSheet({ open, onClose, categories, categoryIds, range, onA
       setIds(categoryIds);
       setR(range);
     }
-  }, [open]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [open]);
 
   const toggle = (id) => setIds((list) => (list.includes(id) ? list.filter((x) => x !== id) : [...list, id]));
 

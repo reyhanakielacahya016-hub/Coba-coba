@@ -20,5 +20,9 @@
     "@vitejs/plugin-react": "^6.1.2",
     "vite": "^8.3.4",
     "vitest": "^5.0.3"
+  },
+  "description": "Saku: aplikasi pencatat uang bulanan untuk anak kos (React + Vite, data di localStorage).",
+  "engines": {
+    "node": ">=20.19"
   }
 }

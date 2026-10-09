@@ -104,3 +104,108 @@
   font-size: 0.85rem;
   margin-top: -6px;
 }
+
+/* ——— Rutin ——— */
+.rec-row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.rec-row .plain-row {
+  flex: 1;
+  min-width: 0;
+}
+
+.rec-row .plain-row__sub {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.rec-row.is-paused .plain-row {
+  opacity: 0.55;
+}
+
+.rec-amt {
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.rec-amt.is-income {
+  color: var(--accent);
+}
+
+.rec-toggle {
+  position: relative;
+  display: grid;
+  place-items: center;
+  min-width: 56px;
+  min-height: 44px;
+  cursor: pointer;
+}
+
+.rec-toggle input {
+  position: absolute;
+  opacity: 0;
+  width: 1px;
+  height: 1px;
+}
+
+.rec-toggle input:checked + .switch__track {
+  background: var(--accent);
+}
+
+.rec-toggle input:checked + .switch__track .switch__thumb {
+  transform: translateX(20px);
+}
+
+.rec-toggle input:focus-visible + .switch__track {
+  outline: 3px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.rec-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 120px;
+  gap: 10px;
+}
+
+/* ——— Data ——— */
+.data-note,
+.data-hint {
+  font-size: 0.88rem;
+}
+
+.data-hint code {
+  font-size: 0.8rem;
+  padding: 1px 6px;
+  border-radius: 6px;
+  background: var(--surface-2);
+}
+
+.import-opts {
+  margin: 0;
+  padding-left: 18px;
+  display: grid;
+  gap: 6px;
+  font-size: 0.9rem;
+}
+
+.settings-foot {
+  text-align: center;
+  font-size: 0.8rem;
+  color: var(--ink-3);
+  padding: 8px 0 0;
+}
+
+.rec-row .plain-row__title,
+.rec-row .plain-row__sub {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.rec-row .plain-row {
+  padding-right: 4px;
+}

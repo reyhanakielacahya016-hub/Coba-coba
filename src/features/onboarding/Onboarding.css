@@ -227,3 +227,10 @@
   display: flex;
   gap: 8px;
 }
+
+.onb__restore {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  justify-self: center;
+}

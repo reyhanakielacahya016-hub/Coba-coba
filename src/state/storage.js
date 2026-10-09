@@ -9,7 +9,7 @@ export const SCHEMA_VERSION = 1;
 export function emptyData() {
   return {
     version: SCHEMA_VERSION,
-    settings: { theme: 'system', onboarded: false },
+    settings: { theme: 'system', onboarded: false, lastBackup: null },
     categories: makeFallbackCategories(),
     transactions: [],
     recurring: [],
@@ -123,6 +123,7 @@ export function normalizeData(raw) {
     settings: {
       theme: ['light', 'dark', 'system'].includes(settings.theme) ? settings.theme : 'system',
       onboarded: Boolean(settings.onboarded),
+      lastBackup: isDate(settings.lastBackup) ? settings.lastBackup : null,
     },
     categories,
     transactions,

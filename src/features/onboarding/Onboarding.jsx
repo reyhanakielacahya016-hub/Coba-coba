@@ -1,4 +1,4 @@
-import { ArrowRight, Lock, Plus, Sparkles, Target } from 'lucide-react';
+import { ArrowRight, Lock, Plus, Sparkles, Target, Upload } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { Button } from '../../components/ui/Button.jsx';
 import { EmojiPicker } from '../../components/ui/EmojiPicker.jsx';
@@ -7,7 +7,7 @@ import { Logo } from '../../components/layout/Logo.jsx';
 import { uid } from '../../lib/id.js';
 import { useData } from '../../state/AppProvider.jsx';
 import { buildSeedData } from '../../state/seed.js';
-import { emptyData } from '../../state/storage.js';
+import { emptyData, normalizeData } from '../../state/storage.js';
 import { ALL_SUGGESTIONS, categoryFromSuggestion } from '../../state/suggestions.js';
 import './Onboarding.css';
 
@@ -65,7 +65,13 @@ export function Onboarding() {
             setCustom={setCustom}
           />
         )}
-        {step === 2 && <Start headingRef={headingRef} onFinish={finish} />}
+        {step === 2 && (
+          <Start
+            headingRef={headingRef}
+            onFinish={finish}
+            onRestore={(restored) => dispatch({ type: 'REPLACE_ALL', data: { ...restored, settings: { ...restored.settings, onboarded: true } } })}
+          />
+        )}
       </div>
 
       <div className="onb__foot">
@@ -195,7 +201,19 @@ function PickCategories({ headingRef, picked, toggle, custom, setCustom }) {
   );
 }
 
-function Start({ headingRef, onFinish }) {
+function Start({ headingRef, onFinish, onRestore }) {
+  const fileRef = useRef(null);
+  const [error, setError] = useState('');
+  const restore = async (e) => {
+    const file = e.target.files?.[0];
+    e.target.value = '';
+    if (!file) return;
+    try {
+      onRestore(normalizeData(JSON.parse(await file.text())));
+    } catch {
+      setError('File ini tidak bisa dibaca. Pastikan memilih file cadangan JSON dari Saku.');
+    }
+  };
   return (
     <div className="onb__step">
       <h1 ref={headingRef} tabIndex={-1} className="onb__title">
@@ -220,6 +238,15 @@ function Start({ headingRef, onFinish }) {
           <ArrowRight size={20} />
         </button>
       </div>
+      <button type="button" className="link-btn onb__restore" onClick={() => fileRef.current?.click()}>
+        <Upload size={16} /> Punya file cadangan? Pulihkan di sini
+      </button>
+      <input ref={fileRef} type="file" accept=".json,application/json" hidden onChange={restore} />
+      {error && (
+        <p className="qa__hint" role="alert">
+          {error}
+        </p>
+      )}
     </div>
   );
 }
