@@ -69,7 +69,7 @@ export function ScopeSheet() {
       open={scopeSheet}
       onClose={closeScopeSheet}
       title="Pilih periode"
-      description="Semua halaman (beranda, anggaran, statistik) akan menghitung berdasarkan pilihan ini."
+      description="Semua halaman (beranda, riwayat, batasan, statistik) akan menghitung berdasarkan pilihan ini."
       footer={
         <Button
           onClick={() => {

@@ -117,7 +117,7 @@ export function DashboardPage() {
         <div className="dash__col dash__col--side">
           <InstallPrompt />
           <StreakCard />
-          <BudgetPreview range={range} />
+          <BudgetPreview />
           <GoalsPreview />
           <TipCard />
         </div>

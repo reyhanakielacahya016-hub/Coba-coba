@@ -4,7 +4,7 @@ import { addMonthsToDate, isISODate, makeISO } from '../src/lib/dates.js';
 import { emptyData, normalizeData, SCHEMA_VERSION } from '../src/state/storage.js';
 import { reducer } from '../src/state/reducer.js';
 import { adjacentScope, defaultScope, periodForDate, rangeForDate, resolveRange } from '../src/state/scope.js';
-import { pace, scaleBudget, totalsIn, weeklyTrend } from '../src/state/selectors.js';
+import { pace, totalsIn, weeklyTrend } from '../src/state/selectors.js';
 
 const tx = (over) => ({
   id: Math.random().toString(36).slice(2), type: 'expense', amount: 10000, categoryId: 'lainnya-out',
@@ -148,11 +148,6 @@ describe('scope & jatah harian', () => {
     const d = base();
     const r = resolveRange(d, { kind: 'period', id: 'sep' }, '2026-10-15');
     expect(pace(d, r, '2026-10-15').level).toBe('none');
-  });
-
-  it('anggaran bulanan disesuaikan dengan panjang periode', () => {
-    expect(scaleBudget(300000, { start: '2026-10-01', end: '2026-10-31' })).toBe(300000);
-    expect(scaleBudget(300000, { start: '2026-10-01', end: '2026-10-10' })).toBe(100000);
   });
 
   it('total dan tren mingguan mengikuti rentang', () => {

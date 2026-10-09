@@ -3,7 +3,6 @@ import { useMemo, useState } from 'react';
 import { Button } from '../../components/ui/Button.jsx';
 import { Chip, Segmented } from '../../components/ui/Form.jsx';
 import { useToast } from '../../hooks/useToast.jsx';
-import { formatRupiah } from '../../lib/format.js';
 import { useData } from '../../state/AppProvider.jsx';
 import { sortCategories } from '../../state/selectors.js';
 import { categoryFromSuggestion, unusedSuggestions } from '../../state/suggestions.js';
@@ -68,7 +67,7 @@ export function CategoryManager() {
                 </span>
                 <span className="plain-row__sub">
                   {counts.get(c.id) || 0} transaksi
-                  {c.budget ? <span className="num"> · batas {formatRupiah(c.budget)}</span> : null}
+                  {data.limits.some((l) => l.target === c.id) ? <span> · ada batasan</span> : null}
                 </span>
               </span>
               <Pencil size={16} className="cat-edit" aria-hidden="true" />

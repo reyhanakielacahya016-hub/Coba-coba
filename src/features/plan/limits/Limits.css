@@ -1,0 +1,391 @@
+/* ——— Ringkasan "aman dipakai hari ini" ——— */
+.safe {
+  display: grid;
+  gap: var(--space-3);
+  padding: var(--space-5);
+  background:
+    radial-gradient(120% 100% at 100% 0%, var(--accent-soft), transparent 60%),
+    var(--surface);
+}
+
+.safe__head {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.safe__icon {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 12px;
+  background: var(--accent);
+  color: var(--accent-ink);
+}
+
+.safe__label {
+  font-weight: 700;
+  color: var(--ink-2);
+}
+
+.safe__amount {
+  display: block;
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: clamp(2rem, 10vw, 2.8rem);
+  letter-spacing: -0.04em;
+  line-height: 1;
+  color: var(--accent);
+}
+
+.safe__cats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.safe__cat {
+  padding: var(--space-1) var(--space-3);
+  border-radius: var(--r-pill);
+  background: var(--surface-2);
+  font-size: 0.82rem;
+}
+
+.safe__cat.level-warn {
+  background: var(--warn-soft);
+  color: var(--warn-ink);
+}
+
+.safe__cat.level-over {
+  background: var(--over-soft);
+  color: var(--over-ink);
+}
+
+.safe__summary {
+  font-size: 0.82rem;
+  color: var(--ink-3);
+}
+
+/* ——— Daftar batasan ——— */
+.limit-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: var(--space-3);
+}
+
+@media (min-width: 900px) {
+  .limit-list {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.limit {
+  display: grid;
+  gap: var(--space-3);
+  height: 100%;
+  align-content: start;
+  transition: opacity var(--dur) var(--ease), box-shadow var(--dur) var(--ease);
+}
+
+.limit.is-off {
+  opacity: 0.6;
+}
+
+.limit__top {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.limit__name,
+.limit__body {
+  border: 0;
+  background: none;
+  padding: 0;
+  text-align: left;
+  color: inherit;
+  min-width: 0;
+}
+
+.limit__name {
+  flex: 1;
+  display: grid;
+  min-height: 44px;
+  align-content: center;
+}
+
+.limit__title {
+  font-weight: 700;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.limit__sub {
+  font-size: 0.78rem;
+  color: var(--ink-3);
+}
+
+.limit__body {
+  display: grid;
+  gap: var(--space-2);
+  border-radius: var(--r-sm);
+}
+
+.limit__bar {
+  position: relative;
+}
+
+/* garis tipis di titik peringatan (mis. 80%) */
+.limit__marker {
+  position: absolute;
+  top: -3px;
+  bottom: -3px;
+  left: var(--warn-at);
+  width: 2px;
+  border-radius: 2px;
+  background: color-mix(in srgb, var(--ink) 35%, transparent);
+}
+
+.limit__nums {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: var(--space-1) var(--space-3);
+  font-size: 0.88rem;
+  color: var(--ink-2);
+}
+
+.limit__nums strong {
+  color: var(--ink);
+}
+
+.limit__range {
+  font-size: 0.78rem;
+  color: var(--ink-3);
+}
+
+.limit__today {
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--r-sm);
+  background: var(--surface-2);
+  font-size: 0.84rem;
+  color: var(--ink-2);
+}
+
+.limit__today strong {
+  color: var(--ink);
+}
+
+.limit__msg {
+  font-size: 0.84rem;
+  color: var(--ink-3);
+}
+
+.limit.level-warn .limit__msg {
+  color: var(--warn-ink);
+}
+
+.limit.level-over .limit__msg {
+  color: var(--over-ink);
+}
+
+.limit .carry-badge {
+  justify-self: start;
+}
+
+.badge--muted {
+  background: var(--surface-2);
+  color: var(--ink-3);
+}
+
+/* sakelar kecil di kartu */
+.mini-switch {
+  position: relative;
+  flex: none;
+  width: 44px;
+  height: 28px;
+  padding: 0;
+  border: 0;
+  border-radius: var(--r-pill);
+  background: var(--surface-3);
+  transition: background-color var(--dur) var(--ease);
+}
+
+.mini-switch::before {
+  content: '';
+  position: absolute;
+  inset: -8px -2px;
+}
+
+.mini-switch__thumb {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--surface);
+  box-shadow: 0 1px 3px rgb(0 0 0 / 0.2);
+  transition: transform var(--dur) var(--ease-spring);
+}
+
+.mini-switch[aria-checked='true'] {
+  background: var(--accent);
+}
+
+.mini-switch[aria-checked='true'] .mini-switch__thumb {
+  transform: translateX(16px);
+}
+
+.ideas {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.ideas .chip {
+  min-height: 40px;
+  font-size: 0.85rem;
+}
+
+/* ——— Form batasan ——— */
+.lf__cats {
+  margin-top: var(--space-1);
+}
+
+.lf__other {
+  display: grid;
+  gap: var(--space-3);
+  margin-top: var(--space-1);
+  animation: fade-up var(--dur) var(--ease);
+}
+
+.lf__ndays,
+.lf__pct {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+  font-weight: 600;
+}
+
+.lf .pf__count {
+  width: 76px;
+  flex: none;
+  text-align: center;
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 1.25rem;
+}
+
+.lf .pf__count.has-error {
+  border-color: var(--over);
+  box-shadow: 0 0 0 3px var(--over-soft);
+}
+
+.lf__pct-sign {
+  font-family: var(--font-display);
+  font-size: 1.3rem;
+  font-weight: 800;
+}
+
+.lf__pct-eq {
+  flex: 1 1 160px;
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+.lf__auto {
+  display: flex;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--r-md);
+  background: var(--surface-2);
+  font-size: 0.88rem;
+}
+
+.lf__auto svg {
+  flex: none;
+  margin-top: 2px;
+  color: var(--accent);
+}
+
+.lf__warning {
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--r-md);
+  background: var(--warn-soft);
+  color: var(--warn-ink);
+  font-size: 0.86rem;
+  animation: fade-up var(--dur) var(--ease);
+}
+
+.lf__warn-val {
+  margin-left: var(--space-1);
+  padding: 1px var(--space-2);
+  border-radius: var(--r-pill);
+  background: var(--warn-soft);
+  color: var(--warn-ink);
+}
+
+.lf__range {
+  width: 100%;
+  height: 32px;
+  accent-color: var(--accent);
+}
+
+.lf__md {
+  max-width: 220px;
+}
+
+/* ——— Kartu batasan di beranda ——— */
+.lp {
+  display: grid;
+  gap: var(--space-4);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.lp__row {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.lp__line {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-2);
+  font-size: 0.9rem;
+}
+
+.lp__name {
+  font-weight: 600;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.lp__val {
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.lp__val.level-warn {
+  color: var(--warn-ink);
+}
+
+.lp__val.level-over {
+  color: var(--over-ink);
+}
+
+.lp__sub {
+  font-size: 0.78rem;
+  color: var(--ink-3);
+}

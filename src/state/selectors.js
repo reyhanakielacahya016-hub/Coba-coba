@@ -1,4 +1,4 @@
-// Fungsi-fungsi "membaca" data: menghitung total, sisa, anggaran, tren, dll.
+// Fungsi-fungsi "membaca" data: menghitung total, sisa, tren, dll.
 // Semuanya murni (tanpa efek samping) sehingga mudah dites.
 
 import { addDays, addMonths, currentMonth, daysInclusive, diffDays, monthOf, monthRange, parseISO, todayISO } from '../lib/dates.js';
@@ -53,61 +53,6 @@ export function spendingByCategory(data, r) {
     .map(([id, amount]) => ({ category: cats.get(id), amount, share: total ? amount / total : 0 }))
     .filter((x) => x.category)
     .sort((a, b) => b.amount - a.amount);
-}
-
-export function budgetLevel(ratio) {
-  if (ratio > 1) return 'over';
-  if (ratio >= WARN_AT) return 'warn';
-  return 'ok';
-}
-
-/** Rentang pas satu bulan kalender? */
-export function isFullMonth(r) {
-  const m = monthOf(r.start);
-  const full = monthRange(m);
-  return r.start === full.start && r.end === full.end;
-}
-
-/**
- * Anggaran disimpan per bulan. Untuk periode yang panjangnya bukan pas satu bulan,
- * batasnya disesuaikan sebanding jumlah hari (dibulatkan ke ribuan).
- */
-export function scaleBudget(monthly, r) {
-  if (!monthly) return 0;
-  if (isFullMonth(r)) return monthly;
-  const days = daysInclusive(r.start, r.end);
-  return Math.max(1000, Math.round((monthly * days) / 30 / 1000) * 1000);
-}
-
-/**
- * Ringkasan batas kategori bernominal tetap dalam rentang r (tampilan ringkas lama).
- * Batas per bulan disesuaikan dengan panjang rentang.
- */
-export function budgetStatus(data, r) {
-  const spent = new Map();
-  for (const t of data.transactions) {
-    if (t.type !== 'expense' || !inRange(t.date, r)) continue;
-    spent.set(t.categoryId, (spent.get(t.categoryId) || 0) + t.amount);
-  }
-  const cats = categoryMap(data);
-  return data.limits
-    .filter((l) => l.active && l.target !== 'total' && l.mode === 'fixed' && l.window?.kind === 'month' && cats.has(l.target))
-    .map((l) => {
-      const c = cats.get(l.target);
-      const s = spent.get(c.id) || 0;
-      const budget = scaleBudget(l.amount, r);
-      const ratio = s / budget;
-      return { category: c, spent: s, budget, monthly: l.amount, left: budget - s, ratio, level: budgetLevel(ratio) };
-    });
-}
-
-/** Pesan lembut untuk satu baris anggaran. */
-export function budgetMessage(b) {
-  const name = b.category.name.toLowerCase();
-  if (b.level === 'over') return `Lewat ${formatRupiah(-b.left)} dari rencana. Tidak apa-apa, periode berikutnya bisa diatur lagi.`;
-  if (b.level === 'warn') return `Tinggal ${formatRupiah(b.left)} untuk ${name}, pelan-pelan ya.`;
-  if (b.spent === 0) return 'Belum terpakai sama sekali.';
-  return `Masih ada ${formatRupiah(b.left)}.`;
 }
 
 /** Rata-rata pengeluaran kategori pada 3 bulan sebelum `month` (hanya bulan yang ada datanya). */

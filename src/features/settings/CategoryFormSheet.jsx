@@ -41,7 +41,7 @@ export function CategoryFormSheet({ state, onClose }) {
       dispatch({ type: 'UPDATE_CATEGORY', category: { id: editing.id, name: trimmed, emoji } });
       toast({ message: 'Kategori diperbarui.', action: { label: 'Urungkan', onClick: () => dispatch({ type: 'UPDATE_CATEGORY', category: before }) } });
     } else {
-      const c = { id: uid(), name: trimmed, emoji, type, budget: null, locked: false };
+      const c = { id: uid(), name: trimmed, emoji, type, locked: false };
       dispatch({ type: 'ADD_CATEGORY', category: c });
       toast({ message: `Kategori ${c.name} dibuat.`, action: { label: 'Urungkan', onClick: () => dispatch({ type: 'DELETE_CATEGORY', id: c.id }) } });
     }

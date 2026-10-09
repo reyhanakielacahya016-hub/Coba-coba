@@ -29,7 +29,7 @@ export const LIMIT_MODES = [
 export const DEFAULT_WARN = 0.8;
 const MAX_CHAIN = 370;
 
-const floor500 = (n) => (n >= 1000 ? Math.floor(n / 500) * 500 : Math.max(0, Math.floor(n)));
+const floor500 = (n) => (n >= 1000 ? Math.floor(n / 500) * 500 : Math.max(0, Math.floor(n / 100) * 100));
 
 /** Spesifikasi jendela untuk sebuah batasan (lihat lib/windows.js). */
 export function limitSpec(limit) {
