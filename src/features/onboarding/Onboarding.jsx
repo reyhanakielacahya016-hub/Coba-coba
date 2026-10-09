@@ -121,7 +121,7 @@ function Welcome({ headingRef }) {
         </li>
         <li>
           <span className="onb__ficon"><Target size={20} /></span>
-          <span><strong>Rencana.</strong> Atur anggaran per kategori dan kumpulkan tabungan untuk target.</span>
+          <span><strong>Rencana.</strong> Atur periode uangmu, pasang batasan, dan kumpulkan tabungan untuk target.</span>
         </li>
         <li>
           <span className="onb__ficon"><Lock size={20} /></span>
@@ -141,7 +141,7 @@ function PickCategories({ headingRef, picked, toggle, custom, setCustom }) {
   const addCustom = () => {
     const n = name.trim();
     if (!n) return;
-    setCustom((c) => [...c, { id: uid(), name: n, emoji, type: 'expense', budget: null, locked: false }]);
+    setCustom((c) => [...c, { id: uid(), name: n, emoji, type: 'expense', locked: false }]);
     setName('');
     inputRef.current?.focus();
   };

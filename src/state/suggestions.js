@@ -29,13 +29,13 @@ export const ALL_SUGGESTIONS = [
 /** Dua kategori cadangan yang tidak bisa dihapus. */
 export function makeFallbackCategories() {
   return [
-    { id: 'lainnya-out', name: 'Lainnya', emoji: '📦', type: 'expense', budget: null, locked: true },
-    { id: 'lainnya-in', name: 'Lainnya', emoji: '✨', type: 'income', budget: null, locked: true },
+    { id: 'lainnya-out', name: 'Lainnya', emoji: '📦', type: 'expense', locked: true },
+    { id: 'lainnya-in', name: 'Lainnya', emoji: '✨', type: 'income', locked: true },
   ];
 }
 
 export function categoryFromSuggestion(s) {
-  return { id: uid(), name: s.name, emoji: s.emoji, type: s.type, budget: null, locked: false };
+  return { id: uid(), name: s.name, emoji: s.emoji, type: s.type, locked: false };
 }
 
 /** Saran yang belum dipakai (berdasarkan nama, tidak peka huruf besar). */

@@ -407,6 +407,7 @@
   margin: 0;
   padding: 0;
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: var(--space-2);
 }
 
@@ -515,4 +516,508 @@
 .explain {
   display: grid;
   gap: var(--space-3);
+}
+
+/* ——— Form rencana periode ——— */
+.plan__section-title {
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--ink-2);
+  margin-bottom: var(--space-2);
+}
+
+.pf__warn {
+  color: var(--warn-ink);
+}
+
+.pf__range {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: var(--space-3);
+}
+
+/* template cepat: kartu yang bisa digeser di HP */
+.tpl-row {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(180px, 1fr);
+  gap: var(--space-2);
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  padding: 2px 2px var(--space-2);
+  margin-inline: -2px;
+  scrollbar-width: thin;
+}
+
+.tpl-row--compact {
+  width: 100%;
+}
+
+.tpl {
+  scroll-snap-align: start;
+  display: grid;
+  align-content: start;
+  gap: var(--space-1);
+  min-height: 112px;
+  padding: var(--space-3);
+  border: 1.5px solid var(--line);
+  border-radius: var(--r-md);
+  background: var(--surface);
+  text-align: left;
+  color: var(--ink);
+  transition: border-color var(--dur-fast) var(--ease), background-color var(--dur-fast) var(--ease), transform var(--dur-fast) var(--ease);
+}
+
+.tpl:hover {
+  border-color: var(--ink-3);
+}
+
+.tpl:active {
+  transform: scale(0.98);
+}
+
+.tpl.is-selected {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 18%, transparent);
+}
+
+.tpl__emoji {
+  font-size: 1.4rem;
+  line-height: 1;
+}
+
+.tpl__title {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 0.98rem;
+  line-height: 1.2;
+}
+
+.tpl__desc {
+  font-size: 0.76rem;
+  color: var(--ink-2);
+}
+
+/* pilihan hari mulai minggu */
+.wd-row {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: var(--space-1);
+}
+
+.wd,
+.md {
+  min-height: 44px;
+  border: 1.5px solid var(--line);
+  border-radius: var(--r-sm);
+  background: var(--surface);
+  color: var(--ink);
+  font-weight: 700;
+  font-size: 0.85rem;
+  transition: background-color var(--dur-fast) var(--ease), border-color var(--dur-fast) var(--ease), transform 200ms var(--ease-spring);
+}
+
+.wd:hover,
+.md:hover {
+  border-color: var(--ink-3);
+}
+
+.wd.is-selected,
+.md.is-selected {
+  border-color: var(--accent);
+  background: var(--accent);
+  color: var(--accent-ink);
+  transform: scale(1.04);
+}
+
+/* pilihan tanggal mulai bulan: grid 1–31 seperti kalender */
+.md-grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: var(--space-1);
+}
+
+.md {
+  min-height: 40px;
+  font-family: var(--font-display);
+  font-variant-numeric: tabular-nums;
+}
+
+.plan__income {
+  display: grid;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--r-md);
+  background: var(--surface-2);
+}
+
+.plan__income-body {
+  display: grid;
+  gap: var(--space-3);
+  animation: fade-up var(--dur) var(--ease);
+}
+
+.plan__preview {
+  gap: var(--space-2);
+}
+
+.plan__preview-eyebrow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.plan__preview-line {
+  font-size: 0.95rem;
+  line-height: 1.45;
+}
+
+.plan__preview-line strong:first-child {
+  font-family: var(--font-display);
+}
+
+.plan__preview-next,
+.plan__preview-note {
+  font-size: 0.82rem;
+}
+
+.plan__preview-note {
+  color: var(--ink-2);
+}
+
+.plan__cycle-note {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-3);
+  border-radius: var(--r-sm);
+  background: var(--surface-2);
+  font-size: 0.86rem;
+}
+
+.plan__cycle-note span {
+  flex: 1 1 200px;
+}
+
+/* "Atur lebih detail" */
+.more {
+  border: 1.5px solid var(--line);
+  border-radius: var(--r-md);
+  background: var(--surface);
+}
+
+.more__summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  min-height: 52px;
+  padding: var(--space-2) var(--space-4);
+  font-weight: 700;
+  cursor: pointer;
+  list-style: none;
+  border-radius: inherit;
+}
+
+.more__summary::-webkit-details-marker {
+  display: none;
+}
+
+.more__caret {
+  color: var(--ink-3);
+  transition: transform var(--dur) var(--ease);
+}
+
+.more[open] .more__caret {
+  transform: rotate(180deg);
+}
+
+.more__body {
+  display: grid;
+  gap: var(--space-4);
+  padding: 0 var(--space-4) var(--space-4);
+  animation: fade-up var(--dur) var(--ease);
+}
+
+/* pilihan sisa uang */
+.carry {
+  display: grid;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  border: 0;
+  min-width: 0;
+}
+
+.carry legend {
+  margin-bottom: var(--space-2);
+}
+
+.carry__opt {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  padding: var(--space-3);
+  border: 1.5px solid var(--line);
+  border-radius: var(--r-sm);
+  cursor: pointer;
+  transition: border-color var(--dur-fast) var(--ease), background-color var(--dur-fast) var(--ease);
+}
+
+.carry__opt input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.carry__opt:has(input:focus-visible) {
+  outline: 3px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.carry__opt.is-selected {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+
+.carry__icon {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  flex: none;
+  border-radius: 12px;
+  background: var(--surface-2);
+  color: var(--ink-2);
+}
+
+.carry__opt.is-selected .carry__icon {
+  background: var(--accent);
+  color: var(--accent-ink);
+}
+
+.carry__text {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.carry__label {
+  font-weight: 700;
+  font-size: 0.92rem;
+}
+
+.carry__desc {
+  font-size: 0.8rem;
+  color: var(--ink-2);
+}
+
+/* batasan yang disarankan template */
+.tpl-limits {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.tpl-limits__list {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.tpl-limit {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-height: 48px;
+  padding: var(--space-2) var(--space-3);
+  border: 1.5px solid var(--line);
+  border-radius: var(--r-sm);
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color var(--dur-fast) var(--ease), background-color var(--dur-fast) var(--ease);
+}
+
+.tpl-limit input {
+  width: 20px;
+  height: 20px;
+  accent-color: var(--accent);
+  flex: none;
+}
+
+.tpl-limit.is-on {
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--accent-soft) 60%, transparent);
+}
+
+.tpl-limit.is-missing {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.tpl-limit__note {
+  font-weight: 500;
+  color: var(--ink-3);
+}
+
+/* ——— Tab periode: rincian & rencana berulang ——— */
+.ledger {
+  display: grid;
+  gap: var(--space-1);
+  margin: 0;
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--r-sm);
+  background: color-mix(in srgb, var(--surface-2) 70%, transparent);
+}
+
+.ledger__row {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-3);
+  font-size: 0.9rem;
+}
+
+.ledger__row dt {
+  color: var(--ink-2);
+}
+
+.ledger__row dd {
+  margin: 0;
+  font-weight: 700;
+}
+
+.ledger__row.is-in dd {
+  color: var(--accent);
+}
+
+.ledger__total {
+  margin-top: var(--space-1);
+  padding-top: var(--space-2);
+  border-top: 1px dashed var(--line);
+}
+
+.ledger__total dt {
+  color: var(--ink);
+  font-weight: 700;
+}
+
+.ledger__total dd {
+  font-family: var(--font-display);
+  font-size: 1.2rem;
+  font-weight: 800;
+}
+
+.ledger__total .is-neg {
+  color: var(--over-ink);
+}
+
+.running__stats:has(> div:nth-child(2):last-child) {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.running__carry {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-2);
+  font-size: 0.86rem;
+}
+
+.running__carry svg {
+  flex: none;
+  margin-top: 2px;
+  color: var(--accent);
+}
+
+.carry-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+}
+
+.carry-badge {
+  padding: 2px var(--space-2);
+  border-radius: var(--r-pill);
+  font-size: 0.72rem;
+  font-weight: 700;
+  background: var(--surface-2);
+  color: var(--ink-2);
+}
+
+.carry-badge.is-in {
+  background: var(--accent-soft);
+  color: var(--accent-soft-ink);
+}
+
+.carry-badge.is-save {
+  background: var(--warn-soft);
+  color: var(--warn-ink);
+}
+
+.cycle {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+}
+
+.cycle.is-paused {
+  opacity: 0.75;
+}
+
+.cycle__icon {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  flex: none;
+  border-radius: 14px;
+  background: var(--accent-soft);
+  color: var(--accent-soft-ink);
+}
+
+.cycle.is-paused .cycle__icon {
+  background: var(--surface-2);
+  color: var(--ink-3);
+}
+
+.cycle__body {
+  flex: 1;
+  min-width: 0;
+  display: grid;
+  gap: 2px;
+}
+
+.cycle__title {
+  font-size: 1.02rem;
+}
+
+.cycle__rule {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--accent);
+}
+
+.cycle__facts {
+  margin: var(--space-1) 0 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 2px;
+  font-size: 0.82rem;
+  color: var(--ink-2);
+}
+
+.suggest-banner--static {
+  align-items: center;
+  border-style: solid;
+}
+
+.suggest-banner--static > span {
+  flex: 1;
 }

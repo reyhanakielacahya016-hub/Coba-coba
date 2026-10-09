@@ -877,3 +877,21 @@
     max-width: 440px;
   }
 }
+
+.hero__carry {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+  margin-top: calc(var(--space-2) * -1);
+  font-size: 0.82rem;
+  color: var(--ink-2);
+}
+
+.hero__carry svg {
+  color: var(--accent);
+}
+
+.hero__carry strong {
+  color: var(--accent);
+}

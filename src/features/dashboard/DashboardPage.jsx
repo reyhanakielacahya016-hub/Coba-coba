@@ -11,6 +11,8 @@ import { periodForDate } from '../../state/scope.js';
 import { categoryMap, pace as computePace, rangeInsight, totalsIn, txInRange } from '../../state/selectors.js';
 import { InstallPrompt } from '../../pwa/InstallPrompt.jsx';
 import { PeriodSwitcher } from '../periods/PeriodSwitcher.jsx';
+import { PendingIncome } from '../periods/PeriodsTab.jsx';
+import { formatDateShort } from '../../lib/format.js';
 import { TransactionItem } from '../transactions/TransactionItem.jsx';
 import { BudgetPreview } from './BudgetPreview.jsx';
 import { PeriodHero } from './PeriodHero.jsx';
@@ -46,6 +48,8 @@ export function DashboardPage() {
   );
   const endingIn = useEndingSoon(range);
   const hasRunningPeriod = Boolean(periodForDate(data, today));
+  const cycle = range.period?.cycleId ? data.cycles.find((c) => c.id === range.period.cycleId) : null;
+  const nextAuto = Boolean(cycle?.active && cycle.repeat);
 
   return (
     <div className="dash">
@@ -66,14 +70,26 @@ export function DashboardPage() {
 
       {endingIn !== null && (
         <div className="banner" role="status">
-          <span>
-            {endingIn === 0 ? 'Periode ini berakhir hari ini.' : `Periode ini berakhir ${endingIn} hari lagi.`} Siapkan periode berikutnya?
-          </span>
-          <Button size="sm" variant="soft" onClick={() => openPeriodForm({ preset: { start: addDays(range.end, 1) } })}>
-            <CalendarPlus size={16} /> Siapkan
-          </Button>
+          {nextAuto ? (
+            <span>
+              {endingIn === 0 ? 'Periode ini berakhir hari ini.' : `Periode ini berakhir ${endingIn} hari lagi.`} Periode berikutnya otomatis mulai{' '}
+              <strong>{formatDateShort(addDays(range.end, 1))}</strong>.
+            </span>
+          ) : (
+            <>
+              <span>{endingIn === 0 ? 'Periode ini berakhir hari ini.' : `Periode ini berakhir ${endingIn} hari lagi.`} Siapkan periode berikutnya?</span>
+              <Button
+                size="sm"
+                variant="soft"
+                onClick={() => openPeriodForm({ preset: { start: addDays(range.end, 1), mode: 'end', end: addDays(range.end, range.days) } })}
+              >
+                <CalendarPlus size={16} /> Siapkan
+              </Button>
+            </>
+          )}
         </div>
       )}
+      <PendingIncome />
 
       <div className="dash__grid">
         <div className="dash__col dash__col--main">
@@ -101,7 +117,7 @@ export function DashboardPage() {
         <div className="dash__col dash__col--side">
           <InstallPrompt />
           <StreakCard />
-          <BudgetPreview range={range} />
+          <BudgetPreview />
           <GoalsPreview />
           <TipCard />
         </div>

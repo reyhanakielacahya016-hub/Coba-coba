@@ -44,7 +44,7 @@ export function PeriodFields({ value, onChange, errors = {}, showName = true, ov
         </div>
       )}
 
-      <DateField label="Tanggal mulai" value={value.start} onChange={(start) => set({ start })} error={errors.start} rangeStart={value.start} rangeEnd={end} />
+      <DateField passInvalid label="Tanggal mulai" value={value.start} onChange={(start) => set({ start })} error={errors.start} rangeStart={value.start} rangeEnd={end} />
 
       <div className="field">
         <span className="field__label" id={`${id}-mode`}>
@@ -97,6 +97,7 @@ export function PeriodFields({ value, onChange, errors = {}, showName = true, ov
         </div>
       ) : (
         <DateField
+                passInvalid
           label="Tanggal berakhir"
           value={value.end}
           onChange={(v) => set({ end: v })}

@@ -26,7 +26,7 @@ export function SettingsPage() {
   const resetAll = async () => {
     const ok = await confirm({
       title: 'Hapus semua data?',
-      message: 'Semua transaksi, kategori, anggaran, dan tabungan akan dihapus dari perangkat ini. Sebaiknya ekspor cadangan dulu.',
+      message: 'Semua transaksi, kategori, periode, batasan, dan tabungan akan dihapus dari perangkat ini. Sebaiknya ekspor cadangan dulu.',
       confirmLabel: 'Ya, hapus semua',
       danger: true,
     });

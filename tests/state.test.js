@@ -2,7 +2,9 @@ import { describe, expect, it } from 'vitest';
 import { applyRecurring } from '../src/state/recurring.js';
 import { emptyData, normalizeData } from '../src/state/storage.js';
 import { reducer } from '../src/state/reducer.js';
-import { budgetStatus, monthTotals, goalProgress, rangeInsight } from '../src/state/selectors.js';
+import { monthTotals, goalProgress, rangeInsight } from '../src/state/selectors.js';
+import { allLimitStatus } from '../src/state/limits.js';
+import { periodLedger } from '../src/state/ledger.js';
 import { monthRange } from '../src/lib/dates.js';
 import { buildSeedData } from '../src/state/seed.js';
 
@@ -48,19 +50,7 @@ describe('selectors', () => {
       tx({ amount: 300000 }),
       tx({ amount: 999, date: '2026-09-30' }),
     ];
-    expect(monthTotals(d, '2026-10')).toEqual({ income: 2000000, expense: 300000, saved: 100000, remaining: 1600000 });
-  });
-
-  it('level anggaran ok / warn / over', () => {
-    const d = emptyData();
-    d.categories.push(
-      { id: 'a', name: 'A', emoji: '🍚', type: 'expense', budget: 100000, locked: false },
-      { id: 'b', name: 'B', emoji: '🍚', type: 'expense', budget: 100000, locked: false },
-      { id: 'c', name: 'C', emoji: '🍚', type: 'expense', budget: 100000, locked: false },
-    );
-    d.transactions = [tx({ categoryId: 'a', amount: 50000 }), tx({ categoryId: 'b', amount: 85000 }), tx({ categoryId: 'c', amount: 120000 })];
-    const levels = Object.fromEntries(budgetStatus(d, monthRange('2026-10')).map((b) => [b.category.id, b.level]));
-    expect(levels).toEqual({ a: 'ok', b: 'warn', c: 'over' });
+    expect(monthTotals(d, '2026-10')).toEqual({ income: 2000000, expense: 300000, saved: 100000, carryIn: 0, remaining: 1600000 });
   });
 
   it('progres target dan saran setoran per minggu', () => {
@@ -77,7 +67,7 @@ describe('selectors', () => {
 describe('reducer', () => {
   it('menghapus kategori memindahkan transaksinya ke Lainnya', () => {
     const d = emptyData();
-    d.categories.push({ id: 'jajan', name: 'Jajan', emoji: '🧋', type: 'expense', budget: null, locked: false });
+    d.categories.push({ id: 'jajan', name: 'Jajan', emoji: '🧋', type: 'expense', locked: false });
     d.transactions = [tx({ categoryId: 'jajan' })];
     const out = reducer(d, { type: 'DELETE_CATEGORY', id: 'jajan' });
     expect(out.categories.some((c) => c.id === 'jajan')).toBe(false);
@@ -109,13 +99,18 @@ describe('storage & seed', () => {
     expect(() => normalizeData([])).toThrow();
   });
 
-  it('data contoh valid dan punya anggaran warn & over', () => {
+  it('data contoh valid: periode berulang, sisa dibawa, dan batasan warn & over', () => {
     const seed = buildSeedData('2026-10-09');
-    expect(normalizeData(seed).transactions.length).toBe(seed.transactions.length);
-    const levels = budgetStatus(seed, monthRange('2026-10')).map((b) => b.level);
+    const norm = normalizeData(seed);
+    expect(norm.transactions.length).toBe(seed.transactions.length);
+    expect(norm.limits).toHaveLength(5);
+    expect(seed.periods.map((p) => p.start).sort()).toEqual(['2026-08-25', '2026-09-25']);
+    const cur = seed.periods.find((p) => p.start === '2026-09-25');
+    expect(periodLedger(seed).get(cur.id).carryIn).toBeGreaterThan(0);
+    const levels = allLimitStatus(norm, '2026-10-09').map((s) => s.level);
     expect(levels).toContain('over');
     expect(levels).toContain('warn');
+    expect(levels).toContain('ok');
     expect(rangeInsight(seed, { ...monthRange('2026-10'), kind: 'month' }, '2026-10-09').text.length).toBeGreaterThan(0);
-    expect(seed.periods).toHaveLength(2);
   });
 });

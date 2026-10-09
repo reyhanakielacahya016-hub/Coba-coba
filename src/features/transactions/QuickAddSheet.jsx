@@ -11,8 +11,9 @@ import { formatRupiah, MONTHS } from '../../lib/format.js';
 import { uid } from '../../lib/id.js';
 import { periodTitle, resolveEnd, validatePeriodInput } from '../../lib/period.js';
 import { useData, useUi } from '../../state/AppProvider.jsx';
-import { periodForDate, rangeForDate } from '../../state/scope.js';
-import { budgetStatus, categoriesByUsage, streakInfo } from '../../state/selectors.js';
+import { periodForDate } from '../../state/scope.js';
+import { categoriesByUsage, streakInfo } from '../../state/selectors.js';
+import { limitsTouching, limitTitle } from '../../state/limits.js';
 import { emptyPeriodInput, PeriodFields } from '../periods/PeriodFields.jsx';
 import { overlapText } from '../periods/PeriodFormSheet.jsx';
 import './QuickAddSheet.css';
@@ -385,17 +386,21 @@ function NewCategoryChip({ type, onCreated }) {
   );
 }
 
-/** Pesan setelah menyimpan: streak atau info anggaran, singkat dan tidak menghakimi. */
+/** Pesan setelah menyimpan: info batasan atau streak, singkat dan tidak menghakimi. */
 function feedbackMessage(dataBefore, tx) {
   const after = { ...dataBefore, transactions: [...dataBefore.transactions, tx] };
-  if (tx.type === 'expense') {
-    const r = rangeForDate(dataBefore, tx.date);
-    const b = budgetStatus(after, r).find((x) => x.category.id === tx.categoryId);
-    const prev = budgetStatus(dataBefore, r).find((x) => x.category.id === tx.categoryId);
-    if (b && prev && b.level !== prev.level) {
-      if (b.level === 'over') return `Tersimpan. Anggaran ${b.category.name.toLowerCase()} sudah lewat, santai saja.`;
-      if (b.level === 'warn') return `Tersimpan. Anggaran ${b.category.name.toLowerCase()} tinggal ${formatRupiah(b.left)}.`;
+  if (tx.type === 'expense' && tx.date === todayISO()) {
+    const prev = new Map(limitsTouching(dataBefore, tx.categoryId).map((s) => [s.limit.id, s]));
+    const now = limitsTouching(after, tx.categoryId);
+    // batasan yang levelnya baru berubah lebih dulu
+    const changed = now.find((s) => prev.get(s.limit.id) && prev.get(s.limit.id).level !== s.level && s.level !== 'ok');
+    if (changed) {
+      const name = limitTitle(after, changed.limit).toLowerCase();
+      if (changed.level === 'over') return `Tersimpan. Batas ${name} sudah lewat, santai saja, besok bisa lebih ringan.`;
+      return `Tersimpan. Batas ${name} sudah ${Math.round(changed.ratio * 100)}% terpakai, sisa ${formatRupiah(Math.max(0, changed.left))}.`;
     }
+    const cat = now.find((s) => s.limit.target === tx.categoryId && s.safeToday !== null);
+    if (cat) return `Tersimpan. ${limitTitle(after, cat.limit)} masih aman ${formatRupiah(cat.safeToday)} hari ini.`;
   }
   const before = streakInfo(dataBefore);
   const now = streakInfo(after);
