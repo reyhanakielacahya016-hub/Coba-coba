@@ -225,3 +225,41 @@
     grid-template-columns: 1fr 1fr;
   }
 }
+
+.budget-total__scaled {
+  font-size: 0.8rem;
+  color: var(--ink-3);
+}
+
+.budget-row__monthly {
+  font-size: 0.75rem;
+  color: var(--ink-3);
+}
+
+.suggest-banner {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  width: 100%;
+  padding: var(--space-3) var(--space-4);
+  border: 1.5px dashed var(--accent);
+  border-radius: var(--r-md);
+  background: color-mix(in srgb, var(--accent-soft) 40%, var(--surface));
+  color: var(--accent-soft-ink);
+  text-align: left;
+  font-size: 0.88rem;
+  transition: transform var(--dur-fast) var(--ease), background-color var(--dur-fast) var(--ease);
+}
+
+.suggest-banner:hover {
+  background: var(--accent-soft);
+}
+
+.suggest-banner:active {
+  transform: scale(0.99);
+}
+
+.suggest-banner svg {
+  flex: none;
+  margin-top: 2px;
+}

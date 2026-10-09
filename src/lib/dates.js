@@ -76,3 +76,40 @@ export function weekOfMonth(iso) {
 export function compareMonth(a, b) {
   return a < b ? -1 : a > b ? 1 : 0;
 }
+
+/** Rentang satu bulan kalender: { start: "2026-10-01", end: "2026-10-31" } */
+export function monthRange(monthKey) {
+  return { start: `${monthKey}-01`, end: `${monthKey}-${pad(daysInMonth(monthKey))}` };
+}
+
+/** Jumlah hari dari a sampai b, termasuk keduanya. */
+export function daysInclusive(a, b) {
+  return diffDays(a, b) + 1;
+}
+
+/** Tambah n bulan pada tanggal; tanggal 31 dipotong ke akhir bulan tujuan. */
+export function addMonthsToDate(iso, n) {
+  const [y, m, d] = iso.split('-').map(Number);
+  const target = addMonths(`${y}-${pad(m)}`, n);
+  return dateInMonth(target, d);
+}
+
+/** Buat ISO dari angka; null kalau tanggalnya tidak ada (mis. 31 Februari). */
+export function makeISO(y, m, d) {
+  const yy = Number(y);
+  const mm = Number(m);
+  const dd = Number(d);
+  if (!Number.isInteger(yy) || !Number.isInteger(mm) || !Number.isInteger(dd)) return null;
+  if (yy < 1900 || yy > 2200 || mm < 1 || mm > 12 || dd < 1) return null;
+  if (dd > daysInMonth(`${yy}-${pad(mm)}`)) return null;
+  return `${yy}-${pad(mm)}-${pad(dd)}`;
+}
+
+export function isISODate(v) {
+  return typeof v === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(v) && makeISO(...v.split('-')) === v;
+}
+
+/** Senin = 0 … Minggu = 6 (kalender Indonesia mulai Senin). */
+export function weekdayMon(iso) {
+  return (parseISO(iso).getDay() + 6) % 7;
+}

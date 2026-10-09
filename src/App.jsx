@@ -11,6 +11,8 @@ import { PlanPage } from './features/plan/PlanPage.jsx';
 import { StatsPage } from './features/stats/StatsPage.jsx';
 import { QuickAddSheet } from './features/transactions/QuickAddSheet.jsx';
 import { UpdateNotice } from './pwa/InstallPrompt.jsx';
+import { PeriodFormSheet } from './features/periods/PeriodFormSheet.jsx';
+import { ScopeSheet } from './features/periods/PeriodSwitcher.jsx';
 
 const TITLES = { '': 'Beranda', riwayat: 'Riwayat', rencana: 'Rencana', statistik: 'Statistik', pengaturan: 'Pengaturan' };
 
@@ -59,6 +61,8 @@ export default function App() {
         <Page key={section} route={route} />
       </AppShell>
       <QuickAddSheet />
+      <ScopeSheet />
+      <PeriodFormSheet />
       <UpdateNotice />
     </>
   );

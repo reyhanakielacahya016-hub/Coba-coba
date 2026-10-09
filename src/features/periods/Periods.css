@@ -1,0 +1,518 @@
+/* ——— Isian periode ——— */
+.pf {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-4);
+}
+
+.pf__opt {
+  font-weight: 500;
+  color: var(--ink-3);
+}
+
+.pf__length {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.pf__count-row {
+  display: flex;
+  gap: var(--space-2);
+  align-items: center;
+}
+
+.pf .pf__count {
+  width: 76px;
+  flex: none;
+  text-align: center;
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 1.25rem;
+}
+
+.pf .pf__count.has-error {
+  border-color: var(--over);
+  box-shadow: 0 0 0 3px var(--over-soft);
+}
+
+.pf__count-row .segmented {
+  flex: 1;
+  min-width: 0;
+}
+
+.pf__count-row .segmented__opt {
+  min-width: 0;
+  padding-inline: var(--space-2);
+}
+
+.pf__quick .chip {
+  min-height: 36px;
+  padding: var(--space-1) var(--space-3);
+  font-size: 0.82rem;
+}
+
+.pf__preview {
+  display: grid;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  border-radius: var(--r-md);
+  background: var(--accent-soft);
+  color: var(--accent-soft-ink);
+  animation: fade-up 220ms var(--ease);
+}
+
+.pf__preview-top {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: var(--space-1) var(--space-3);
+}
+
+.pf__preview-range {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 1.1rem;
+}
+
+.pf__preview-len {
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.pf__overlap {
+  font-size: 0.82rem;
+  color: var(--ink-2);
+}
+
+/* garis waktu periode */
+.timeline__track {
+  position: relative;
+  height: 8px;
+  border-radius: var(--r-pill);
+  background: color-mix(in srgb, var(--accent) 18%, transparent);
+}
+
+.timeline__fill {
+  position: absolute;
+  inset: 0 auto 0 0;
+  border-radius: inherit;
+  background: var(--accent);
+  transition: width var(--dur-slow) var(--ease);
+  animation: progress-grow 700ms var(--ease);
+}
+
+.timeline__now {
+  position: absolute;
+  top: 50%;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--surface);
+  border: 3px solid var(--accent);
+  transform: translate(-50%, -50%);
+  animation: now-pulse 2.4s ease-in-out infinite;
+}
+
+@keyframes now-pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--accent) 40%, transparent);
+  }
+  50% {
+    box-shadow: 0 0 0 6px transparent;
+  }
+}
+
+/* ——— Pemilih periode (‹ nama ›) ——— */
+.pswitch {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: var(--space-1);
+  border-radius: var(--r-pill);
+  background: var(--surface);
+  box-shadow: var(--shadow-1);
+  max-width: 100%;
+  min-width: 0;
+}
+
+.pswitch__label {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: 44px;
+  padding: var(--space-1) var(--space-2);
+  border: 0;
+  border-radius: var(--r-pill);
+  background: transparent;
+  text-align: left;
+  transition: background-color var(--dur-fast) var(--ease);
+}
+
+.pswitch__label:hover {
+  background: var(--surface-2);
+}
+
+.pswitch__icon {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: var(--accent-soft);
+  color: var(--accent-soft-ink);
+  flex: none;
+}
+
+.pswitch__text {
+  flex: 1;
+  min-width: 0;
+  display: grid;
+  line-height: 1.2;
+}
+
+.pswitch__title {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 0.98rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.pswitch__sub {
+  font-size: 0.75rem;
+  color: var(--ink-3);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.pswitch__live {
+  color: var(--accent);
+  font-weight: 700;
+}
+
+.pswitch__caret {
+  color: var(--ink-3);
+  flex: none;
+}
+
+/* ——— Lembar pilih periode ——— */
+.scope-group {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.scope-group__title {
+  font-size: 0.85rem;
+  font-family: var(--font-body);
+  font-weight: 700;
+  color: var(--ink-2);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.scope-empty {
+  font-size: 0.9rem;
+}
+
+.scope-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: var(--space-2);
+}
+
+.scope-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+.scope-opt {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-height: 60px;
+  padding: var(--space-2) var(--space-3);
+  border: 1.5px solid var(--line);
+  border-radius: var(--r-sm);
+  background: var(--surface);
+  text-align: left;
+  transition: border-color var(--dur-fast) var(--ease), background-color var(--dur-fast) var(--ease), transform var(--dur-fast) var(--ease);
+}
+
+.scope-opt:hover {
+  border-color: var(--ink-3);
+}
+
+.scope-opt:active {
+  transform: scale(0.99);
+}
+
+.scope-opt.is-active {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+
+.scope-opt__main {
+  flex: 1;
+  min-width: 0;
+  display: grid;
+}
+
+.scope-opt__title {
+  font-weight: 700;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.scope-opt__sub {
+  font-size: 0.8rem;
+  color: var(--ink-3);
+}
+
+.scope-opt__side {
+  display: grid;
+  justify-items: end;
+  gap: 2px;
+}
+
+.scope-opt__left {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--ink-2);
+  white-space: nowrap;
+}
+
+.scope-opt__left.is-neg {
+  color: var(--over-ink);
+}
+
+.badge--p-active {
+  background: var(--accent);
+  color: var(--accent-ink);
+}
+
+.badge--p-upcoming {
+  background: var(--warn-soft);
+  color: var(--warn-ink);
+}
+
+.badge--p-done {
+  background: var(--surface-2);
+  color: var(--ink-2);
+}
+
+/* ——— Tab Periode ——— */
+.period-ideas {
+  display: grid;
+  justify-items: center;
+  gap: var(--space-2);
+  padding: 0 var(--space-2) var(--space-4);
+}
+
+.period-ideas .chip-row {
+  justify-content: center;
+}
+
+.running {
+  display: grid;
+  gap: var(--space-4);
+  padding: var(--space-5);
+  background:
+    radial-gradient(120% 100% at 100% 0%, var(--accent-soft), transparent 60%),
+    var(--surface);
+}
+
+.running__head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: var(--space-3);
+}
+
+.running__eyebrow {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+.running__title {
+  font-size: clamp(1.3rem, 5vw, 1.6rem);
+  font-weight: 800;
+}
+
+.running__range {
+  font-size: 0.85rem;
+}
+
+.running__stats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-3);
+}
+
+.running__stats > div {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.running__label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--ink-2);
+}
+
+.running__value {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: clamp(1rem, 4.4vw, 1.25rem);
+  letter-spacing: -0.02em;
+  overflow-wrap: anywhere;
+}
+
+.running__value.is-neg {
+  color: var(--over-ink);
+}
+
+.running__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.running__actions a.btn {
+  text-decoration: none;
+}
+
+.running--none {
+  gap: var(--space-2);
+  background: var(--surface);
+}
+
+.period-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: var(--space-2);
+}
+
+.period-row {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-1);
+  padding: var(--space-2);
+  border: 1.5px solid transparent;
+  transition: border-color var(--dur-fast) var(--ease);
+}
+
+.period-row.is-viewing {
+  border-color: var(--accent);
+}
+
+.period-row__main {
+  flex: 1;
+  min-width: 0;
+  display: grid;
+  gap: var(--space-2);
+  padding: var(--space-2);
+  border: 0;
+  border-radius: var(--r-sm);
+  background: transparent;
+  text-align: left;
+  transition: background-color var(--dur-fast) var(--ease);
+}
+
+.period-row__main:hover {
+  background: var(--surface-2);
+}
+
+.period-row__top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
+.period-row__title {
+  font-weight: 700;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.period-row__range {
+  font-size: 0.8rem;
+  color: var(--ink-3);
+}
+
+.period-row__bar {
+  height: 6px;
+  border-radius: var(--r-pill);
+  background: var(--surface-2);
+  overflow: hidden;
+}
+
+.period-row__bar span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--accent);
+  animation: progress-grow 700ms var(--ease);
+}
+
+.period-row__bar span.is-neg {
+  background: var(--over);
+}
+
+.period-row__nums {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1) var(--space-4);
+  font-size: 0.78rem;
+  color: var(--ink-2);
+}
+
+.period-row__nums strong {
+  color: var(--ink);
+}
+
+.period-row__nums .is-pos strong {
+  color: var(--accent);
+}
+
+.period-row__nums .is-neg strong {
+  color: var(--over-ink);
+}
+
+.explain__list {
+  margin: 0;
+  padding-left: var(--space-5);
+  display: grid;
+  gap: var(--space-2);
+  font-size: 0.9rem;
+  color: var(--ink-2);
+}
+
+.explain__list strong {
+  color: var(--ink);
+}
+
+.explain {
+  display: grid;
+  gap: var(--space-3);
+}

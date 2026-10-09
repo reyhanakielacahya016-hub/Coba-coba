@@ -16,7 +16,7 @@ const PAGE = 20; // jumlah hari yang ditampilkan per "halaman"
 
 export function HistoryPage() {
   const { data } = useData();
-  const { openQuickAdd } = useUi();
+  const { openQuickAdd, range: scopeRange } = useUi();
   const [q, setQ] = useState('');
   const [type, setType] = useState('all');
   const [categoryIds, setCategoryIds] = useState([]);
@@ -48,7 +48,9 @@ export function HistoryPage() {
   const rangeLabel =
     range.preset === 'custom'
       ? `${range.from ? formatDateShort(range.from) : '…'} – ${range.to ? formatDateShort(range.to) : '…'}`
-      : PRESETS.find((p) => p.value === range.preset)?.label;
+      : range.preset === 'scope'
+        ? scopeRange.title
+        : PRESETS.find((p) => p.value === range.preset)?.label;
 
   return (
     <div className="history">
@@ -182,9 +184,10 @@ export function HistoryPage() {
         categories={sortCategories(data.categories.filter((c) => type === 'all' || c.type === type))}
         categoryIds={categoryIds}
         range={range}
+        scopeRange={scopeRange}
         onApply={(ids, r) => {
           setCategoryIds(ids);
-          setRange(r.preset === 'custom' ? r : { preset: r.preset, ...presetRange(r.preset) });
+          setRange(r.preset === 'custom' ? r : { preset: r.preset, ...presetRange(r.preset, scopeRange) });
           setLimit(PAGE);
           setFilterOpen(false);
         }}

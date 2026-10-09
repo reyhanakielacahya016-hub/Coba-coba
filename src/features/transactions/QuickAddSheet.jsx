@@ -3,13 +3,18 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { Button } from '../../components/ui/Button.jsx';
 import { EmojiPicker } from '../../components/ui/EmojiPicker.jsx';
 import { AmountInput, Chip, Segmented, Switch, TextInput } from '../../components/ui/Form.jsx';
+import { DateField } from '../../components/ui/DateField.jsx';
 import { Sheet } from '../../components/ui/Sheet.jsx';
 import { useToast } from '../../hooks/useToast.jsx';
 import { addDays, monthOf, todayISO } from '../../lib/dates.js';
-import { formatRupiah } from '../../lib/format.js';
+import { formatRupiah, MONTHS } from '../../lib/format.js';
 import { uid } from '../../lib/id.js';
+import { periodTitle, resolveEnd, validatePeriodInput } from '../../lib/period.js';
 import { useData, useUi } from '../../state/AppProvider.jsx';
+import { periodForDate, rangeForDate } from '../../state/scope.js';
 import { budgetStatus, categoriesByUsage, streakInfo } from '../../state/selectors.js';
+import { emptyPeriodInput, PeriodFields } from '../periods/PeriodFields.jsx';
+import { overlapText } from '../periods/PeriodFormSheet.jsx';
 import './QuickAddSheet.css';
 
 const QUICK_AMOUNTS = [5000, 10000, 15000, 20000, 50000];
@@ -22,6 +27,8 @@ function emptyForm(preset = {}) {
     date: todayISO(),
     note: '',
     repeat: false,
+    newPeriod: false,
+    period: emptyPeriodInput(todayISO()),
   };
 }
 
@@ -31,27 +38,40 @@ function emptyForm(preset = {}) {
  */
 export function QuickAddSheet() {
   const { data, dispatch } = useData();
-  const { quickAdd, closeQuickAdd } = useUi();
+  const { quickAdd, closeQuickAdd, setScope } = useUi();
   const toast = useToast();
   const amountRef = useRef(null);
   const editing = quickAdd?.edit ?? null;
 
   const [form, setForm] = useState(emptyForm);
   const [hint, setHint] = useState('');
+  const [periodErrors, setPeriodErrors] = useState({});
 
   // isi ulang form setiap kali sheet dibuka
   useEffect(() => {
     if (!quickAdd) return;
     setHint('');
+    setPeriodErrors({});
     if (quickAdd.edit) {
       const t = quickAdd.edit;
-      setForm({ type: t.type, amount: t.amount, categoryId: t.categoryId, date: t.date, note: t.note, repeat: Boolean(t.recurringId) });
+      setForm({ ...emptyForm(), type: t.type, amount: t.amount, categoryId: t.categoryId, date: t.date, note: t.note, repeat: Boolean(t.recurringId) });
     } else {
       setForm(emptyForm(quickAdd));
     }
   }, [quickAdd]);
 
   const set = (patch) => setForm((f) => ({ ...f, ...patch }));
+  // ganti tanggal transaksi -> tanggal mulai periode ikut, selama belum diubah sendiri
+  const setDate = (date) =>
+    setForm((f) => ({ ...f, date, period: f.period.start === f.date ? { ...f.period, start: date } : f.period }));
+  const setType = (type) =>
+    setForm((f) => ({
+      ...f,
+      type,
+      categoryId: null,
+      // sarankan periode baru kalau tanggal ini belum masuk periode mana pun
+      newPeriod: type === 'income' && !periodForDate(data, f.date),
+    }));
   const categories = useMemo(() => categoriesByUsage(data, form.type), [data, form.type]);
   const today = todayISO();
   const yesterday = addDays(today, -1);
@@ -67,6 +87,15 @@ export function QuickAddSheet() {
     if (!form.categoryId) {
       setHint('Pilih kategorinya dulu ya.');
       return;
+    }
+    const wantPeriod = !editing && form.type === 'income' && form.newPeriod;
+    if (wantPeriod) {
+      const errs = validatePeriodInput(form.period);
+      setPeriodErrors(errs);
+      if (Object.keys(errs).length) {
+        setHint('Periodenya belum lengkap, cek bagian periode di bawah ya.');
+        return;
+      }
     }
 
     if (editing) {
@@ -115,13 +144,32 @@ export function QuickAddSheet() {
       dispatch({ type: 'ADD_TX', tx });
     }
 
+    let period = null;
+    if (wantPeriod) {
+      const p = form.period;
+      const cat = data.categories.find((c) => c.id === tx.categoryId);
+      period = {
+        id: uid(),
+        name: p.name.trim() || tx.note || `${cat?.name ?? 'Pemasukan'} ${MONTHS[Number(p.start.slice(5, 7)) - 1]}`,
+        start: p.start,
+        end: resolveEnd(p),
+        createdAt: Date.now(),
+      };
+      dispatch({ type: 'ADD_PERIOD', period });
+      setScope({ kind: 'period', id: period.id });
+    }
+
     toast({
-      message: feedbackMessage(data, tx),
+      message: period ? `Pemasukan tersimpan & periode ${periodTitle(period)} dimulai. 🗓️` : feedbackMessage(data, tx),
       action: {
         label: 'Urungkan',
         onClick: () => {
           dispatch({ type: 'DELETE_TX', id: tx.id });
           if (recurringId) dispatch({ type: 'DELETE_RECURRING', id: recurringId });
+          if (period) {
+            dispatch({ type: 'DELETE_PERIOD', id: period.id });
+            setScope(null);
+          }
         },
       },
     });
@@ -171,7 +219,7 @@ export function QuickAddSheet() {
         <Segmented
           label="Jenis transaksi"
           value={form.type}
-          onChange={(type) => set({ type, categoryId: null })}
+          onChange={setType}
           options={[
             { value: 'expense', label: 'Pengeluaran' },
             { value: 'income', label: 'Pemasukan' },
@@ -232,23 +280,16 @@ export function QuickAddSheet() {
         )}
 
         <div className="qa__details">
-          <div className="qa__dates" role="group" aria-label="Tanggal">
-            <Chip selected={form.date === today} onClick={() => set({ date: today })}>
+          <div className="qa__dates" role="group" aria-label="Tanggal transaksi">
+            <Chip selected={form.date === today} onClick={() => setDate(today)}>
               Hari ini
             </Chip>
-            <Chip selected={form.date === yesterday} onClick={() => set({ date: yesterday })}>
+            <Chip selected={form.date === yesterday} onClick={() => setDate(yesterday)}>
               Kemarin
             </Chip>
-            <label className="qa__date">
-              <span className="sr-only">Pilih tanggal</span>
-              <input
-                type="date"
-                className={`input ${form.date !== today && form.date !== yesterday ? 'is-custom' : ''}`}
-                value={form.date}
-                max={addDays(today, 365)}
-                onChange={(e) => e.target.value && set({ date: e.target.value })}
-              />
-            </label>
+            <div className="qa__date">
+              <DateField compact value={form.date} onChange={(d) => d && setDate(d)} max={addDays(today, 365)} />
+            </div>
           </div>
           <TextInput
             placeholder={isIncome ? 'Catatan (opsional), mis. kiriman Oktober' : 'Catatan (opsional), mis. nasi padang'}
@@ -264,6 +305,27 @@ export function QuickAddSheet() {
               label="Ulangi tiap bulan"
               description={`Otomatis dicatat setiap tanggal ${Number(form.date.slice(8, 10))}, cocok untuk kos atau kiriman.`}
             />
+          )}
+          {!editing && isIncome && (
+            <div className={`qa__period ${form.newPeriod ? 'is-on' : ''}`}>
+              <Switch
+                checked={form.newPeriod}
+                onChange={(newPeriod) => set({ newPeriod })}
+                label="Mulai periode baru dari pemasukan ini"
+                description="Sisa uang & jatah harian dihitung dari tanggal mulai sampai akhir periode."
+              />
+              {form.newPeriod && (
+                <PeriodFields
+                  value={form.period}
+                  onChange={(period) => {
+                    set({ period });
+                    if (Object.keys(periodErrors).length) setPeriodErrors(validatePeriodInput(period));
+                  }}
+                  errors={periodErrors}
+                  overlapNote={overlapText(data.periods, form.period.start, resolveEnd(form.period))}
+                />
+              )}
+            </div>
           )}
           {editing?.recurringId && <p className="qa__note">Transaksi ini bagian dari jadwal rutin. Jadwalnya bisa diatur di Pengaturan.</p>}
         </div>
@@ -326,9 +388,9 @@ function NewCategoryChip({ type, onCreated }) {
 function feedbackMessage(dataBefore, tx) {
   const after = { ...dataBefore, transactions: [...dataBefore.transactions, tx] };
   if (tx.type === 'expense') {
-    const month = monthOf(tx.date);
-    const b = budgetStatus(after, month).find((x) => x.category.id === tx.categoryId);
-    const prev = budgetStatus(dataBefore, month).find((x) => x.category.id === tx.categoryId);
+    const r = rangeForDate(dataBefore, tx.date);
+    const b = budgetStatus(after, r).find((x) => x.category.id === tx.categoryId);
+    const prev = budgetStatus(dataBefore, r).find((x) => x.category.id === tx.categoryId);
     if (b && prev && b.level !== prev.level) {
       if (b.level === 'over') return `Tersimpan. Anggaran ${b.category.name.toLowerCase()} sudah lewat, santai saja.`;
       if (b.level === 'warn') return `Tersimpan. Anggaran ${b.category.name.toLowerCase()} tinggal ${formatRupiah(b.left)}.`;

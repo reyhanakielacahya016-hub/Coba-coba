@@ -2,7 +2,8 @@ import { describe, expect, it } from 'vitest';
 import { applyRecurring } from '../src/state/recurring.js';
 import { emptyData, normalizeData } from '../src/state/storage.js';
 import { reducer } from '../src/state/reducer.js';
-import { budgetStatus, monthTotals, goalProgress, monthInsight } from '../src/state/selectors.js';
+import { budgetStatus, monthTotals, goalProgress, rangeInsight } from '../src/state/selectors.js';
+import { monthRange } from '../src/lib/dates.js';
 import { buildSeedData } from '../src/state/seed.js';
 
 const tx = (over) => ({
@@ -58,7 +59,7 @@ describe('selectors', () => {
       { id: 'c', name: 'C', emoji: '🍚', type: 'expense', budget: 100000, locked: false },
     );
     d.transactions = [tx({ categoryId: 'a', amount: 50000 }), tx({ categoryId: 'b', amount: 85000 }), tx({ categoryId: 'c', amount: 120000 })];
-    const levels = Object.fromEntries(budgetStatus(d, '2026-10').map((b) => [b.category.id, b.level]));
+    const levels = Object.fromEntries(budgetStatus(d, monthRange('2026-10')).map((b) => [b.category.id, b.level]));
     expect(levels).toEqual({ a: 'ok', b: 'warn', c: 'over' });
   });
 
@@ -111,9 +112,10 @@ describe('storage & seed', () => {
   it('data contoh valid dan punya anggaran warn & over', () => {
     const seed = buildSeedData('2026-10-09');
     expect(normalizeData(seed).transactions.length).toBe(seed.transactions.length);
-    const levels = budgetStatus(seed, '2026-10').map((b) => b.level);
+    const levels = budgetStatus(seed, monthRange('2026-10')).map((b) => b.level);
     expect(levels).toContain('over');
     expect(levels).toContain('warn');
-    expect(monthInsight(seed, '2026-10', '2026-10-09').text.length).toBeGreaterThan(0);
+    expect(rangeInsight(seed, { ...monthRange('2026-10'), kind: 'month' }, '2026-10-09').text.length).toBeGreaterThan(0);
+    expect(seed.periods).toHaveLength(2);
   });
 });

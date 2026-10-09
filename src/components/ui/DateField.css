@@ -1,0 +1,143 @@
+.datefield {
+  display: grid;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+.datefield__box {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  min-height: 48px;
+  padding: 0 var(--space-1) 0 var(--space-3);
+  border: 1.5px solid var(--line);
+  border-radius: var(--r-sm);
+  background: var(--surface);
+  transition: border-color var(--dur-fast) var(--ease), box-shadow var(--dur-fast) var(--ease);
+}
+
+.datefield__box:focus-within,
+.datefield__box.is-open {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+
+.datefield__box.has-error {
+  border-color: var(--over);
+  box-shadow: 0 0 0 3px var(--over-soft);
+}
+
+.datefield__parts {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  min-width: 0;
+  color: var(--ink-3);
+  font-weight: 600;
+}
+
+.datefield__part {
+  width: 2.4ch;
+  min-width: 0;
+  padding: var(--space-2) 0;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--ink);
+  font-weight: 700;
+  font-size: 1rem;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
+.datefield__part--year {
+  width: 4.6ch;
+}
+
+.datefield__part::placeholder {
+  color: var(--ink-3);
+  font-weight: 500;
+  opacity: 0.8;
+}
+
+.datefield__part:focus {
+  outline: none;
+  background: var(--accent-soft);
+}
+
+.datefield__btn,
+.datefield__clear {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  flex: none;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--ink-2);
+  transition: background-color var(--dur-fast) var(--ease), color var(--dur-fast) var(--ease), transform var(--dur-fast) var(--ease);
+}
+
+.datefield__btn {
+  background: var(--accent-soft);
+  color: var(--accent-soft-ink);
+}
+
+.datefield__btn:hover {
+  background: var(--accent);
+  color: var(--accent-ink);
+}
+
+.datefield__btn:active,
+.datefield__clear:active {
+  transform: scale(0.9);
+}
+
+.datefield__clear:hover {
+  background: var(--surface-2);
+}
+
+.datefield__error {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--over-ink);
+  animation: fade-up 180ms var(--ease);
+}
+
+/* popover kalender (lapisan teratas, di atas sheet) */
+.datefield__pop {
+  position: fixed;
+  inset: auto;
+  margin: 0;
+  padding: var(--space-3);
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  background: var(--surface);
+  color: var(--ink);
+  box-shadow: var(--shadow-2);
+  overflow: visible;
+}
+
+.datefield__pop:popover-open {
+  animation: pop-in 200ms var(--ease);
+}
+
+@keyframes pop-in {
+  from {
+    opacity: 0;
+    transform: translateY(-6px) scale(0.97);
+  }
+}
+
+.datefield__inline {
+  padding: var(--space-3);
+  border-radius: var(--r-md);
+  background: var(--surface-2);
+  animation: fade-up 200ms var(--ease);
+}
+
+.datefield--compact .datefield__box {
+  min-height: 44px;
+}

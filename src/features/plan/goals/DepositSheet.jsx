@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { Button } from '../../../components/ui/Button.jsx';
+import { DateField } from '../../../components/ui/DateField.jsx';
 import { AmountInput, Chip, Segmented, TextInput } from '../../../components/ui/Form.jsx';
 import { Sheet } from '../../../components/ui/Sheet.jsx';
 import { useToast } from '../../../hooks/useToast.jsx';
@@ -17,6 +18,7 @@ export function DepositSheet({ goal, onClose, onAchieved }) {
   const [mode, setMode] = useState('in');
   const [amount, setAmount] = useState(0);
   const [note, setNote] = useState('');
+  const [date, setDate] = useState(todayISO());
 
   useEffect(() => {
     if (goal) {
@@ -24,6 +26,7 @@ export function DepositSheet({ goal, onClose, onAchieved }) {
       setMode('in');
       setAmount(0);
       setNote('');
+      setDate(todayISO());
     }
   }, [goal]);
 
@@ -35,7 +38,7 @@ export function DepositSheet({ goal, onClose, onAchieved }) {
 
   const save = () => {
     if (!amount || tooMuchOut) return;
-    const deposit = { id: uid(), goalId: shown.id, amount: mode === 'out' ? -amount : amount, date: todayISO(), note: note.trim() };
+    const deposit = { id: uid(), goalId: shown.id, amount: mode === 'out' ? -amount : amount, date: date || todayISO(), note: note.trim() };
     dispatch({ type: 'ADD_DEPOSIT', deposit });
     const after = saved + deposit.amount;
     if (mode === 'in' && saved < shown.target && after >= shown.target) {
@@ -88,10 +91,11 @@ export function DepositSheet({ goal, onClose, onAchieved }) {
             </Chip>
           )}
         </div>
+        <DateField label="Tanggal" value={date} onChange={(d) => d && setDate(d)} max={todayISO()} compact />
         <TextInput placeholder="Catatan (opsional)" aria-label="Catatan setoran" value={note} maxLength={120} onChange={(e) => setNote(e.target.value)} />
         {mode === 'out' && !tooMuchOut && <p className="muted">Kadang memang perlu dipakai. Tidak apa-apa, nanti bisa diisi lagi.</p>}
         {tooMuchOut && <p className="qa__hint">Saldo target ini baru {formatRupiah(saved)}.</p>}
-        <p className="muted deposit-note">Setoran dihitung sebagai “Ditabung” dan mengurangi sisa uang bulan ini.</p>
+        <p className="muted deposit-note">Setoran dihitung sebagai “Ditabung” dan mengurangi sisa uang periode itu.</p>
       </div>
     </Sheet>
   );
