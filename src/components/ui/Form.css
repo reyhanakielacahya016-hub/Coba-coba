@@ -193,8 +193,19 @@ input[type='date'].input {
 }
 
 .segmented--sm .segmented__opt {
+  flex-basis: 0;
   min-height: 34px;
+  padding-inline: var(--space-2);
   font-size: 0.85rem;
+  line-height: 1.15;
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 380px) {
+  .segmented--sm .segmented__opt {
+    padding-inline: var(--space-1);
+    font-size: 0.78rem;
+  }
 }
 
 /* ——— Switch ——— */

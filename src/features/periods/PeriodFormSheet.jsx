@@ -212,7 +212,7 @@ function PlanSheet({ open, form, onClose }) {
         <>
           {cycle && (
             <>
-              <Button variant="danger" onClick={removeCycle} aria-label="Hapus rencana">
+              <Button variant="danger" className="sheet__foot-icon" onClick={removeCycle} aria-label="Hapus rencana">
                 <Trash2 size={18} />
               </Button>
               <Button variant="soft" onClick={toggleActive}>

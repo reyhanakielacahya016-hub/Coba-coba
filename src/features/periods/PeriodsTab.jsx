@@ -240,8 +240,8 @@ function FocusCard({ item }) {
       <p className="running__carry">
         {p.carry === 'save' ? <PiggyBank size={16} aria-hidden="true" /> : <Repeat2 size={16} aria-hidden="true" />}
         <span>
-          {carryText}
-          {cycle && <span className="muted"> · {cycleRuleLabel(cycle)}</span>}
+          {cycle ? carryText.replace(/\.$/, '') : carryText}
+          {cycle && <span className="muted"> · {cycleRuleLabel(cycle)}.</span>}
         </span>
       </p>
 
